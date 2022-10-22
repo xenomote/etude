@@ -1,0 +1,18 @@
+# ignore everything
+*
+
+# include this file
+!/.gitignore
+
+# include project metadata files
+!README
+!LICENSE
+!MAKEFILE
+
+# include go source files
+!*.go
+!go.sum
+!go.mod
+
+# search subdirectories for included files
+!*/
