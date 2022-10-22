@@ -12,7 +12,7 @@ This project is intended for experimenting with novel language features:
 - structs, arrays and sets as composition types
 - arbitrary byte-width integers or floats
 - structural function typing and type inference
-- automatic asynchronicity and concurrency management
+- https://go.dev/doc/installautomatic asynchronicity and concurrency management
 - forbidding any global state and ringfencing hardware interaction
 - compiler assisted logging as a language feature
 - compiler assisted error handling as a language feature
@@ -20,5 +20,5 @@ This project is intended for experimenting with novel language features:
 
 ## How to run
 
-0. [install latest golang](https://go.dev/doc/install)
-0. `go run github.com/xenomote/etude`
+1. [install latest golang](https://go.dev/doc/install)
+2. `go run github.com/xenomote/etude`
