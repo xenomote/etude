@@ -5,9 +5,9 @@
 !/.gitignore
 
 # include project metadata files
-!README
+!README.md
 !LICENSE
-!MAKEFILE
+!makefile
 
 # include go source files
 !*.go
