@@ -12,7 +12,7 @@ This project is intended for experimenting with novel language features:
 - structs, arrays and sets as composition types
 - arbitrary byte-width integers or floats
 - structural function typing and type inference
-- https://go.dev/doc/installautomatic asynchronicity and concurrency management
+- automatic asynchronicity and concurrency management
 - forbidding any global state and ringfencing hardware interaction
 - compiler assisted logging as a language feature
 - compiler assisted error handling as a language feature
