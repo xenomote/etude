@@ -6,17 +6,19 @@ A programming language project for testing experimental language features
 
 This project is intended for experimenting with novel language features:
 
-- documentation tooling and change management
+- arbitrary byte-width integers or floats
+- structs, arrays and sets as composition types
+- forbidding any global state and ringfencing hardware interaction
+- dedicated languages with separate file types for specific concerns
+- compiler assisted error handling
+- compiler assisted logging
+- compiler assisted documentation
+- structural function typing
+- automatic type inference
+- automatic asynchronicity and concurrency management
 - syntactically significant statement grouping
 - automated source code rearrangement
-- structs, arrays and sets as composition types
-- arbitrary byte-width integers or floats
-- structural function typing and type inference
-- automatic asynchronicity and concurrency management
-- forbidding any global state and ringfencing hardware interaction
-- compiler assisted logging as a language feature
-- compiler assisted error handling as a language feature
-- dedicated languages with separate file types for specific concerns
+- uniform access to functions through the command line as mini-executables
 
 ## How to run
 
