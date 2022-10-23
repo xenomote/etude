@@ -42,24 +42,33 @@ func TestParseFailure(t *testing.T) {
 		`blah8`, // not num
 
 		`num`,    // no width or range
+		`number`, // width is not number
 		`num8aa`, // width with extra characters
 		`num0`,   // zero width
 		`num08`,  // zero prefixed width
 		`num-8`,  // negative width
 		`num3`,   // non multiple of 8 width
 
-		`num8[]`, // empty range
-		`num8[`,  // missing close bracket
-		`num8]`,  // missing open bracket
-		`num8][`, // missmatched brackets
+		`num8[]`,  // empty range
+		`num8[`,   // missing close bracket
+		`num8]`,   // missing open bracket
+		`num8][`,  // missmatched brackets
+		`num8[]x`, // extra values after brackets
 
 		`num8[-1:1,]`, // comma but no precision
 		`num8[1:-1]`,  // inverted range
 		`num8[1:1]`,   // single value range
 		`num8[1:2]`,   // two value range (use bit)
 
+		`num[1:]`,   // min with no width
+		`num8[aa:]`, // min not a number
+		`num[:1]`,   // max with no width
+		`num8[:aa]`, // max not a number
+
 		`num8[,-3]`, // comma but no range
-		`num8[0]`,   // zero precision
+		`num8[123]`, // precision doesnt start with + or -
+		`num8[+0]`,  // zero precision
+		`num8[+aa]`, // precision not a number
 	}
 
 	for _, test := range tests {
