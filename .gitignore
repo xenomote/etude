@@ -8,6 +8,7 @@
 !README.md
 !LICENSE
 !makefile
+!*.txt
 
 # include go source files
 !*.go
