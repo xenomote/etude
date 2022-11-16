@@ -1,5 +1,3 @@
-...
-
 program
     = [ func | define ]+
 
@@ -36,6 +34,17 @@ condition
     = expression
     = define
 
+read
+    = write
+    = path "?"
+
+write
+    = path
+    = "@" path
+
+path
+    = name [ "." name ]*
+
 expression
     = read
     = literal
@@ -47,25 +56,21 @@ literal
     = number
     = string
     = boolean
+
     = "(" expression ")"        // bracketed expression
-    = "(" expression_list ")"   // set literal
-    = "[" expression_list "]"   // list literal
+
+    = "(" expression_list ")"   // unordered literal
+    = "(" expression_fields ")" // object literal
+
+    = "[" expression_list "]"   // ordered literal
+    = "[" expression_fields "]" // serial literal
+
 
 expression_list
     = expression [ "," expression ]*
 
+expression_fields
     = name ":" expression [ "," name ":" expression ]*
-
-write
-    = path
-    = "@" path
-
-read
-    = write
-    = path "?"
-
-path
-    = name [ "." name ]*
 
 type
     = path                  // nominal type
