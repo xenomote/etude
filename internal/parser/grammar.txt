@@ -73,7 +73,7 @@ expression_fields
     = name ":" expression [ "," name ":" expression ]*
 
 type
-    = path                  // nominal type
+    = path                  // nominative type
 
     = "()"                  // any
     = "(" type ")"          // set
