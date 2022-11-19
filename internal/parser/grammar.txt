@@ -8,7 +8,7 @@ assign
     = write "=" expression
 
 func
-    = "func" type "#" type block
+    = "func" [ type "#" ]? name type block
 
 if
     = "if" condition block [ "or" condition block ]* [ "or" block ]?
