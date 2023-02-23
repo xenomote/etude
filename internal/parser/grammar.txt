@@ -1,0 +1,92 @@
+program
+    = [ func | define ]+
+
+define
+    = name [ type ]? ":=" expression
+
+assign
+    = write "=" expression
+
+func
+    = "func" [ type "#" ]? name type block
+
+if
+    = "if" condition block [ "or" condition block ]* [ "or" block ]?
+
+on
+    = "on" condition "{" [ condition [ "," condition ]* block ]+ [ "or" block ]? "}"
+
+for
+    = "for" [ [ define "," ]* expression [ "," assign ]* ]? [ block ]?
+
+block
+    = "{" [ statement ]+ "}"
+
+statement
+    = if
+    = on
+    = for
+    = define
+    = assign
+    = "return" [ expression ]?
+
+condition
+    = expression
+    = define
+
+read
+    = write
+    = path "?"
+
+write
+    = path
+    = "@" path
+
+path
+    = name [ "." name ]*
+
+expression
+    = read
+    = literal
+    = path "#" literal
+    = expression [ [ "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "&&" | "||" ] expression ]+
+    = [ "-" | "!" ] expression
+
+literal
+    = number
+    = string
+    = boolean
+
+    = "(" expression ")"        // bracketed expression
+
+    = "(" expression_list ")"   // unordered literal
+    = "(" expression_fields ")" // object literal
+
+    = "[" expression_list "]"   // ordered literal
+    = "[" expression_fields "]" // serial literal
+
+
+expression_list
+    = expression [ "," expression ]*
+
+expression_fields
+    = name ":" expression [ "," name ":" expression ]*
+
+type
+    = path                  // nominative type
+
+    = "()"                  // any
+    = "(" type ")"          // set
+    = "(" type_list ")"     // interface
+    = "(" type_fields ")"   // interface
+
+    = "[]"                  // serial
+    = "[" type "]"          // list
+    = "[" type_list "]"     // tuple
+    = "[" type_fields "]"   // serial object
+
+type_list
+    = type [ "," type ]*
+
+type_fields
+    = name ":" type [ "," name ":" type ]*
