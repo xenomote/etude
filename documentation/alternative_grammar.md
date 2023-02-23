@@ -1,7 +1,7 @@
 ```ebnf
 program
     = [ func | assign ]+
-
+ 
 assign
     = expression "=" expression
 
@@ -29,7 +29,7 @@ statement
 
 expression
     = literal
-    = expression "(" expression ")"
+    = expression constructor
     = op_prefix expression
     = expression op_suffix
     = expression [ op_infix expression ]+
@@ -48,13 +48,14 @@ literal
     = number
     = string
     = boolean
-
-    = "(" expression_list ")"   // list literal/tuple literal/expression brackets
-    = "(" expression_fields ")" // object literal/map literal
-
+    = constructor
 
 reference
     = [ "~" ]? [ "#" ]? path [ "?" ]?
+
+constructor
+    = "(" expression_list ")"   // list literal/tuple literal/expression brackets
+    = "(" expression_fields ")" // object literal/map literal
 
 expression_list
     = expression [ "," expression ]* [ "," ]?
