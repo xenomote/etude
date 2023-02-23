@@ -1,36 +1,87 @@
 ```ebnf
-program :=
-    import_declaration_list toplevel_definition_list
+program
+    = [ func | assign ]+
+ 
+assign
+    = expression "=" expression
 
-import_declaration_list :=
-    import_declaration  import_declaration_list
-    ~
+func
+    = "func" name [ type ]? ":" [ type ]? block
 
-import_declaration :=
-    'import' LITERAL_STRING
+if
+    = "if" expression block [ "or" expression block ]* [ "or" block ]?
 
-toplevel_definition_list :=
-    toplevel_definition toplevel_definition_list
-    ~
+on
+    = "on" expression "{" [ expression [ "," expression ]* [ "," ]? block ]+ [ "or" block ]? "}"
 
-toplevel_definition :=
-    constant_definition
-    function_definition
+for
+    = "for" [ [ assign "," ]* expression [ "," assign ]* ]? [ block ]?
 
-constant_definition :=
-    IDENTIFIER ':=' expression
+block
+    = "{" [ statement ]+ "}"
 
-expression :=
-    literal
-    structure_value
-    prefix_operator expression
-    expression binary_operator expression
+statement
+    = if
+    = on
+    = for
+    = assign
+    = "return" [ expression ]?
 
-literal :=
-    LITERAL_BOOLEAN
-    LITERAL_NUMBER
-    LITERAL_STRING
+expression
+    = literal
+    = expression constructor
+    = op_prefix expression
+    = expression op_suffix
+    = expression [ op_infix expression ]+
+   
+op_prefix
+    = [ "-" | "!" | "@" ]
+    
+op_suffix
+    = [ "++" | "--" | "..." ]
 
-function_definition :=
-    'func' structure_type structure_type '{' statement_list '}'
+op_infix
+    = [ "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "&&" | "||" | "#" ]
+
+literal
+    = reference
+    = number
+    = string
+    = boolean
+    = constructor
+
+reference
+    = [ "~" ]? [ "#" ]? path [ "?" ]?
+
+constructor
+    = "(" expression_list ")"   // list literal/tuple literal/expression brackets
+    = "(" expression_fields ")" // object literal/map literal
+
+expression_list
+    = expression [ "," expression ]* [ "," ]?
+
+expression_fields
+    = expression_field [ "," expression_field ]* [ "," ]?
+
+expression_field
+    = field ":" expression
+    = ":" field
+
+type
+    = path                  // named type
+    = "[" type_list "]"     // list type/tuple type
+    = "[" type_fields "]"   // object type
+    = "[" type ":" type "]" // map type/function type
+ 
+path
+    =  name [ "." name ]*
+
+type_list
+    = type [ "," type ]* [ "," ]?
+
+type_fields
+    = field ":" type [ "," field ":" type ]* [ "," ]?
+
+field
+    = [ "~" ]? [ "#" ]? name [ "?" ]?
 ```
