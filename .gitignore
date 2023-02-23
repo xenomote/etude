@@ -7,8 +7,8 @@
 # include project metadata files
 !README.md
 !LICENSE
-!makefile
 !*.txt
+!*.md
 
 # include go source files
 !*.go
