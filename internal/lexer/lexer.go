@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	. "github.com/xenomote/etude/internal/tokens"
+	"github.com/xenomote/etude/internal/token"
 )
 
 type Error string
@@ -16,11 +16,11 @@ func (l Error) Error() string {
 }
 
 const (
-	NotFound                = Error("no matching token found")
-	UnexpectedEOF           = Error("unexpected end of input")
-	UnexpectedStringEOF     = Error("unexpected end of input before string close")
-	UnexpectedStringNewline = Error("unexpected newline before string close")
-	UnexpectedToken         = Error("unexpected token type found")
+	ErrNotFound                = Error("no matching token found")
+	ErrUnexpectedEOF           = Error("unexpected end of input")
+	ErrUnexpectedStringEOF     = Error("unexpected end of input before string close")
+	ErrUnexpectedStringNewline = Error("unexpected newline before string close")
+	ErrUnexpectedToken         = Error("unexpected token type found")
 )
 
 type Position struct {
@@ -31,7 +31,7 @@ type Lexer struct {
 	src  *bufio.Reader
 	buf  *strings.Builder
 	pos  Position
-	got  Token
+	got  token.Token
 	end  bool
 	last rune
 }
@@ -47,7 +47,7 @@ func New(r io.Reader) Lexer {
 	return l
 }
 
-func (l *Lexer) Want(tokens ...Token) (Token, error) {
+func (l *Lexer) Want(tokens ...token.Token) (token.Token, error) {
 	got, err := l.Next()
 
 	for _, want := range tokens {
@@ -60,37 +60,37 @@ func (l *Lexer) Want(tokens ...Token) (Token, error) {
 		return got, err
 	}
 
-	return got, UnexpectedToken
+	return got, ErrUnexpectedToken
 }
 
-func (l *Lexer) Next() (Token, error) {
+func (l *Lexer) Next() (token.Token, error) {
 	for !l.end && unicode.IsSpace(l.last) {
 		l.read()
 	}
 	l.Clear()
 
 	if l.end {
-		return l.fail(UnexpectedEOF)
+		return l.fail(ErrUnexpectedEOF)
 	}
 
 	switch l.last {
 	case '{', '}', '[', ']', '(', ')', '?', '@', '#', '.', ',', '+', '-', '*', '/', '^', '%':
-		return l.emit(Token(l.last))
+		return l.emit(token.Token(l.last))
 
 	case '=':
-		return l.either(EQUALS, DOUBLE_EQUALS)
+		return l.either(token.EQUALS, token.DOUBLE_EQUALS)
 
 	case ':':
-		return l.either(COLON, COLON_EQUALS)
+		return l.either(token.COLON, token.COLON_EQUALS)
 
 	case '!':
-		return l.either(EXCLAIM, EXCLAIM_EQUALS)
+		return l.either(token.EXCLAIM, token.EXCLAIM_EQUALS)
 
 	case '<':
-		return l.either(LESS, LESS_EQUALS)
+		return l.either(token.LESS, token.LESS_EQUALS)
 
 	case '>':
-		return l.either(GREATER, GREATER_EQUALS)
+		return l.either(token.GREATER, token.GREATER_EQUALS)
 
 	case '"':
 		return l.string()
@@ -104,7 +104,7 @@ func (l *Lexer) Next() (Token, error) {
 		return l.identifier()
 	}
 
-	return l.fail(NotFound)
+	return l.fail(ErrNotFound)
 }
 
 func (l *Lexer) Text() string {
@@ -123,18 +123,18 @@ func (l *Lexer) Clear() {
 	}
 }
 
-func (l *Lexer) emit(t Token) (Token, error) {
+func (l *Lexer) emit(t token.Token) (token.Token, error) {
 	l.got = t
 	l.read()
 	return t, nil
 }
 
-func (l *Lexer) fail(err error) (Token, error) {
-	l.got = ERROR
-	return ERROR, err
+func (l *Lexer) fail(err error) (token.Token, error) {
+	l.got = token.ERROR
+	return token.ERROR, err
 }
 
-func (l *Lexer) either(a, b Token) (Token, error) {
+func (l *Lexer) either(a, b token.Token) (token.Token, error) {
 	l.read()
 
 	if l.last == '=' {
@@ -145,32 +145,32 @@ func (l *Lexer) either(a, b Token) (Token, error) {
 	return a, nil
 }
 
-func (l *Lexer) string() (Token, error) {
+func (l *Lexer) string() (token.Token, error) {
 	for {
 		l.readEscape()
 
 		if l.end {
-			return l.fail(UnexpectedStringEOF)
+			return l.fail(ErrUnexpectedStringEOF)
 		}
 
 		if l.last == '\n' {
-			return l.fail(UnexpectedStringNewline)
+			return l.fail(ErrUnexpectedStringNewline)
 		}
 
 		if l.last == '"' {
-			return l.emit(STRING)
+			return l.emit(token.STRING)
 		}
 	}
 }
 
-func (l *Lexer) number() (Token, error) {
+func (l *Lexer) number() (token.Token, error) {
 	l.read()
-	return NUMBER, nil
+	return token.NUMBER, nil
 }
 
-func (l *Lexer) identifier() (Token, error) {
+func (l *Lexer) identifier() (token.Token, error) {
 	l.read()
-	return IDENTIFIER, nil
+	return token.IDENTIFIER, nil
 }
 
 func (l *Lexer) readEscape() {

@@ -1,47 +1,61 @@
 package token
 
-type Token int
+//go:generate stringer -type Token
+type Token uint
 
 const (
-	IMPORT Token = iota
-	RETURN
-	IF
-	OR
-	FOR
-	FUNC
+	ERROR Token = iota
+	END
 
-	STRING
+	FUNC
+	RETURN
+	FOR
+	IF
+	ON
+
 	NUMBER
+	STRING
 	BOOLEAN
 	IDENTIFIER
 
-	ROUND_LEFT
-	ROUND_RIGHT
-
-	SQUARE_LEFT
-	SQUARE_RIGHT
-
-	COLON
-	COMMA
-	PERIOD
-	QUESTION
-	ADDRESS
-	HASH
-	MINUS
-	PLUS
-	STAR
-	SLASH
-	CARRET
-	PERCENT
 	EQUALS
 	DOUBLE_EQUALS
-	NOT_EQUALS
+
+	COLON
 	COLON_EQUALS
+
+	EXCLAIM
+	EXCLAIM_EQUALS
+
 	DOUBLE_AMPERSAND
 	DOUBLE_PIPE
-	EXCLAIMATION
 
-	NEWLINE
+	LESS
+	LESS_EQUALS
+
+	GREATER
+	GREATER_EQUALS
+
+	CURLY_LEFT  Token = '{'
+	CURLY_RIGHT Token = '}'
+
+	ROUND_LEFT  Token = '('
+	ROUND_RIGHT Token = ')'
+
+	SQUARE_LEFT  Token = '['
+	SQUARE_RIGHT Token = ']'
+
+	QUESTION Token = '?'
+	ADDRESS  Token = '@'
+	HASH     Token = '#'
+
+	PERIOD Token = '.'
+	COMMA  Token = ','
+
+	PLUS    Token = '+'
+	MINUS   Token = '-'
+	STAR    Token = '*'
+	SLASH   Token = '/'
+	CARRET  Token = '^'
+	PERCENT Token = '%'
 )
-
-type Position interface{}

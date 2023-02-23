@@ -5,28 +5,28 @@ import (
 	"testing"
 
 	"github.com/xenomote/etude/internal/lexer"
-	. "github.com/xenomote/etude/internal/tokens"
+	"github.com/xenomote/etude/internal/token"
 )
 
 func TestWant(t *testing.T) {
 	s := `   ===@?><>=!=:=.,"abc \n"1c`
 	l := lexer.New(strings.NewReader(s))
 
-	toks := []Token{
-		DOUBLE_EQUALS,
-		EQUALS,
-		ADDRESS,
-		QUESTION,
-		GREATER,
-		LESS,
-		GREATER_EQUALS,
-		EXCLAIM_EQUALS,
-		COLON_EQUALS,
-		PERIOD,
-		COMMA,
-		STRING,
-		NUMBER,
-		IDENTIFIER,
+	toks := []token.Token{
+		token.DOUBLE_EQUALS,
+		token.EQUALS,
+		token.ADDRESS,
+		token.QUESTION,
+		token.GREATER,
+		token.LESS,
+		token.GREATER_EQUALS,
+		token.EXCLAIM_EQUALS,
+		token.COLON_EQUALS,
+		token.PERIOD,
+		token.COMMA,
+		token.STRING,
+		token.NUMBER,
+		token.IDENTIFIER,
 	}
 
 	for _, tok := range toks {
@@ -44,19 +44,19 @@ func TestNextFail(t *testing.T) {
 	}{
 		{
 			"~",
-			lexer.NotFound,
+			lexer.ErrNotFound,
 		},
 		{
 			"",
-			lexer.UnexpectedEOF,
+			lexer.ErrUnexpectedEOF,
 		},
 		{
 			"\"hello",
-			lexer.UnexpectedStringEOF,
+			lexer.ErrUnexpectedStringEOF,
 		},
 		{
 			"\"hello\n",
-			lexer.UnexpectedStringNewline,
+			lexer.ErrUnexpectedStringNewline,
 		},
 	} {
 		t.Run(test.output.Error(), func(t *testing.T) {
