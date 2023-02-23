@@ -1,24 +1,21 @@
 ```ebnf
 program
-    = [ func | define ]+
-
-define
-    = name [ type ]? ":=" expression
+    = [ func | assign ]+
 
 assign
-    = write "=" expression
+    = expression "=" expression
 
 func
-    = "func" [ type "#" ]? name type block
+    = "func" name [ type ]? ":" [ type ]? block
 
 if
-    = "if" condition block [ "or" condition block ]* [ "or" block ]?
+    = "if" expression block [ "or" expression block ]* [ "or" block ]?
 
 on
-    = "on" condition "{" [ condition [ "," condition ]* block ]+ [ "or" block ]? "}"
+    = "on" expression "{" [ expression [ "," expression ]* [ "," ]? block ]+ [ "or" block ]? "}"
 
 for
-    = "for" [ [ define "," ]* expression [ "," assign ]* ]? [ block ]?
+    = "for" [ [ assign "," ]* expression [ "," assign ]* ]? [ block ]?
 
 block
     = "{" [ statement ]+ "}"
@@ -27,68 +24,63 @@ statement
     = if
     = on
     = for
-    = define
     = assign
     = "return" [ expression ]?
 
-condition
-    = expression
-    = define
-
-read
-    = write
-    = path "?"
-
-write
-    = path
-    = "@" path
-
-path
-    = name [ "." name ]*
-
 expression
-    = read
     = literal
-    = path "#" literal
-    = expression [ [ "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "&&" | "||" ] expression ]+
-    = [ "-" | "!" ] expression
+    = expression "(" expression ")"
+    = op_prefix expression
+    = expression op_suffix
+    = expression [ op_infix expression ]+
+   
+op_prefix
+    = [ "-" | "!" | "@" ]
+    
+op_suffix
+    = [ "++" | "--" | "..." ]
+
+op_infix
+    = [ "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "&&" | "||" | "#" ]
 
 literal
+    = reference
     = number
     = string
     = boolean
 
-    = "(" expression ")"        // bracketed expression
+    = "(" expression_list ")"   // list literal/tuple literal/expression brackets
+    = "(" expression_fields ")" // object literal/map literal
 
-    = "(" expression_list ")"   // unordered literal
-    = "(" expression_fields ")" // object literal
 
-    = "[" expression_list "]"   // ordered literal
-    = "[" expression_fields "]" // serial literal
-
+reference
+    = [ "~" ]? [ "#" ]? path [ "?" ]?
 
 expression_list
-    = expression [ "," expression ]*
+    = expression [ "," expression ]* [ "," ]?
 
 expression_fields
-    = name ":" expression [ "," name ":" expression ]*
+    = expression_field [ "," expression_field ]* [ "," ]?
+
+expression_field
+    = field ":" expression
+    = ":" field
 
 type
-    = path                  // nominative type
-
-    = "()"                  // any
-    = "(" type ")"          // set
-    = "(" type_list ")"     // interface
-    = "(" type_fields ")"   // interface
-
-    = "[]"                  // serial
-    = "[" type "]"          // list
-    = "[" type_list "]"     // tuple
-    = "[" type_fields "]"   // serial object
+    = path                  // named type
+    = "[" type_list "]"     // list type/tuple type
+    = "[" type_fields "]"   // object type
+    = "[" type ":" type "]" // map type/function type
+ 
+path
+    =  name [ "." name ]*
 
 type_list
-    = type [ "," type ]*
+    = type [ "," type ]* [ "," ]?
 
 type_fields
-    = name ":" type [ "," name ":" type ]*
+    = field ":" type [ "," field ":" type ]* [ "," ]?
+
+field
+    = [ "~" ]? [ "#" ]? name [ "?" ]?
 ```
