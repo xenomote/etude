@@ -1,21 +1,15 @@
 ```ebnf
 program
-    = [ func | assign ]+
- 
+    = [ assign | func ]+
+
 assign
     = expression "=" expression
 
 func
-    = "func" name [ type ]? ":" [ type ]? block
-
-if
-    = "if" expression block [ "or" expression block ]* [ "or" block ]?
-
-on
-    = "on" expression "{" [ expression [ "," expression ]* [ "," ]? block ]+ [ "or" block ]? "}"
-
-for
-    = "for" [ [ assign "," ]* expression [ "," assign ]* ]? [ block ]?
+    = "func" field [ ":" type ]? [ object_type ]? block
+    = "func" field object_type block
+    = "func" field "[" "->" type "]" block
+    = "func" field "[" object_type "->" type "]"
 
 block
     = "{" [ statement ]+ "}"
@@ -26,6 +20,15 @@ statement
     = for
     = assign
     = "return" [ expression ]?
+
+if
+    = "if" expression block [ "or" expression block ]* [ "or" block ]?
+
+on
+    = "on" expression "{" [ expression [ "," expression ]* [ "," ]? block ]+ [ "or" block ]? "}"
+
+for
+    = "for" [ [ assign "," ]? expression [ "," assign ]? ]? [ block ]?
 
 expression
     = literal
@@ -38,10 +41,12 @@ op_prefix
     = [ "-" | "!" | "@" ]
     
 op_suffix
-    = [ "++" | "--" | "..." ]
+    = [ "..." ]
 
 op_infix
-    = [ "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "&&" | "||" | "#" ]
+    = [ "+" | "-" | "*" | "/" | "^" | "%" ] // arithmetic
+    = [ "==" | "!=" | "&&" | "||" ]         // boolean
+    = [ "<<" | ">>"]                        // object/map merge
 
 literal
     = reference
@@ -52,6 +57,9 @@ literal
 
 reference
     = [ "~" ]? [ "#" ]? path [ "?" ]?
+
+path
+    =  name [ "." name ]*
 
 constructor
     = "(" expression_list ")"   // list literal/tuple literal/expression brackets
@@ -69,12 +77,12 @@ expression_field
 
 type
     = path                  // named type
+    = object_type
     = "[" type_list "]"     // list type/tuple type
-    = "[" type_fields "]"   // object type
     = "[" type ":" type "]" // map type/function type
- 
-path
-    =  name [ "." name ]*
+
+object_type
+    = "[" type_fields "]"
 
 type_list
     = type [ "," type ]* [ "," ]?
