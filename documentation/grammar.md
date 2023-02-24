@@ -1,15 +1,12 @@
 ```ebnf
 program
-    = [ assign | func ]+
+    = [ [ "-" ]? [ const | func ] ]+
 
-assign
-    = expression "=" expression
+const
+    = "const" name "=" expression
 
 func
-    = "func" field [ ":" type ]? [ object_type ]? block
-    = "func" field object_type block
-    = "func" field "[" "->" type "]" block
-    = "func" field "[" object_type "->" type "]"
+    = "func" field [ ":" type ]? [ type_constructor ]? block
 
 block
     = "{" [ statement ]+ "}"
@@ -18,6 +15,7 @@ statement
     = if
     = on
     = for
+    = const
     = assign
     = "return" [ expression ]?
 
@@ -29,6 +27,9 @@ on
 
 for
     = "for" [ [ assign "," ]? expression [ "," assign ]? ]? [ block ]?
+
+assign
+    = expression "=" expression
 
 expression
     = literal
@@ -53,7 +54,7 @@ literal
     = number
     = string
     = boolean
-    = constructor
+    = expression_constructor
 
 reference
     = [ "~" ]? [ "#" ]? path [ "?" ]?
@@ -61,34 +62,28 @@ reference
 path
     =  name [ "." name ]*
 
-constructor
-    = "(" expression_list ")"   // list literal/tuple literal/expression brackets
-    = "(" expression_fields ")" // object literal/map literal
-
-expression_list
-    = expression [ "," expression ]* [ "," ]?
+expression_constructor
+    = "(" expression_fields ")"   // list/tuple/object/map literal, expression brackets
 
 expression_fields
     = expression_field [ "," expression_field ]* [ "," ]?
 
 expression_field
-    = field ":" expression
-    = ":" field
+    = [ field ]? ":" expression
 
 type
     = path                  // named type
-    = object_type
-    = "[" type_list "]"     // list type/tuple type
-    = "[" type ":" type "]" // map type/function type
+    = type_constructor      // list/tuple/object type 
+    = "[" type ":" type "]" // map/function type
 
-object_type
+type_constructor
     = "[" type_fields "]"
 
-type_list
-    = type [ "," type ]* [ "," ]?
-
 type_fields
-    = field ":" type [ "," field ":" type ]* [ "," ]?
+    = type_field [ "," type_field ]* [ "," ]?
+
+type_field
+    = [ "-" ]? [ "const" ]? [ field ":" ]? type
 
 field
     = [ "~" ]? [ "#" ]? name [ "?" ]?
