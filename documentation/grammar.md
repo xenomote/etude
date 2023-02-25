@@ -49,9 +49,9 @@ op_suffix
     = [ "..." ]
 
 op_infix
-    = [ "+" | "-" | "*" | "/" | "^" | "%" ] ;; arithmetic
-    = [ "==" | "!=" | "&&" | "||" ]         ;; boolean
-    = [ "<<" | ">>"]                        ;; object/map merge
+    = [ "+" | "-" | "*" | "/" | "^" | "%" ] (* arithmetic       *)
+    = [ "==" | "!=" | "&&" | "||" ]         (* boolean          *)
+    = [ "<<" | ">>"]                        (* object/map merge *)
 
 literal
     = reference
@@ -67,7 +67,7 @@ path
     =  name [ "." name ]*
 
 expression_constructor
-    = "(" expression_fields ")"   ;; list/tuple/object/map literal, brackets
+    = "(" expression_fields ")"   (* list/tuple/object/map literal, brackets *)
 
 expression_fields
     = expression_field [ "," expression_field ]* [ "," ]?
@@ -79,9 +79,9 @@ type
     = [ "comp" ]? inner_type
 
 inner_type
-    = path                  ;; named type
-    = type_constructor      ;; list/tuple/object type 
-    = "[" type ":" type "]" ;; map/function type
+    = path                  (* named type               *)
+    = type_constructor      (* list/tuple/object type   *)
+    = "[" type ":" type "]" (* map/function type        *)
 
 type_constructor
     = "[" type_fields "]"
