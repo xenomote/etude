@@ -1,9 +1,12 @@
 ```ebnf
 program
-    = [ [ "-" ]? [ const | func ] ]+
+    = [ [ "-" ]? [ comp | typedef | func ] ]+
 
-const
-    = "const" name "=" expression
+comp
+    = "comp" name expression
+
+typedef
+    = "type" name type
 
 func
     = "func" field [ ":" type ]? [ type_constructor ]? block
@@ -15,7 +18,7 @@ statement
     = if
     = on
     = for
-    = const
+    = comp
     = assign
     = "return" [ expression ]?
 
@@ -63,15 +66,18 @@ path
     =  name [ "." name ]*
 
 expression_constructor
-    = "(" expression_fields ")"   // list/tuple/object/map literal, expression brackets
+    = "(" expression_fields ")"   // list/tuple/object/map literal, brackets
 
 expression_fields
     = expression_field [ "," expression_field ]* [ "," ]?
 
 expression_field
-    = [ field ]? ":" expression
+    = [ [ field ]? ":" ]? expression
 
 type
+    = [ "comp" ]? inner_type
+
+inner_type
     = path                  // named type
     = type_constructor      // list/tuple/object type 
     = "[" type ":" type "]" // map/function type
@@ -83,7 +89,7 @@ type_fields
     = type_field [ "," type_field ]* [ "," ]?
 
 type_field
-    = [ "-" ]? [ "const" ]? [ field ":" ]? type
+    = [ "-" ]? [ field ":" ]? type
 
 field
     = [ "~" ]? [ "#" ]? name [ "?" ]?
