@@ -1,6 +1,6 @@
 ```ebnf
 program
-    = [ [ "-" ]? [ comp | typedef | func ] ]+
+    = { "-"? ( comp / typedef / func ) }+
 
 comp
     = "comp" name expression
@@ -9,10 +9,10 @@ typedef
     = "type" name type
 
 func
-    = "func" field [ ":" type ]? [ type_constructor ]? block
+    = "func" field ( ":" type )? type_constructor? block
 
 block
-    = "{" [ statement ]+ "}"
+    = "{" { statement }+ "}"
 
 statement
     = if
@@ -21,16 +21,16 @@ statement
     = comp
     = assign
     = typedef
-    = "return" [ expression ]?
+    = "return" expression?
 
 if
-    = "if" expression block [ "or" expression block ]* [ "or" block ]?
+    = "if" expression block { "or" expression block } ( "or" block )?
 
 on
-    = "on" expression "{" [ expression [ "," expression ]* [ "," ]? block ]+ [ "or" block ]? "}"
+    = "on" expression "{" { expression { "," expression } ","? block }+ ( "or" block )? "}"
 
 for
-    = "for" [ [ assign "," ]? expression [ "," assign ]? ]? [ block ]?
+    = "for" ( ( assign "," )? expression ( "," assign )? )? block?
 
 assign
     = expression "=" expression
@@ -40,18 +40,18 @@ expression
     = expression constructor
     = op_prefix expression
     = expression op_suffix
-    = expression [ op_infix expression ]+
+    = expression { op_infix expression }+
    
 op_prefix
-    = [ "-" | "!" | "@" ]
+    = ("-" / "!" / "@")
     
 op_suffix
-    = [ "..." ]
+    = ("...")
 
 op_infix
-    = [ "+" | "-" | "*" | "/" | "^" | "%" ] (* arithmetic       *)
-    = [ "==" | "!=" | "&&" | "||" ]         (* boolean          *)
-    = [ "<<" | ">>"]                        (* object/map merge *)
+	= ( "+" / "-" / "*" / "/" / "^" / "%" ) (* arithmetic       *)
+    = ( "==" / "!=" / "&&" / "||" )         (* boolean          *)
+    = ( "<<" / ">>" )                       (* object/map merge *)
 
 literal
     = reference
@@ -61,22 +61,22 @@ literal
     = expression_constructor
 
 reference
-    = [ "~" ]? [ "#" ]? path [ "?" ]?
+    = "~"? "#"? path "?"?
 
 path
-    =  name [ "." name ]*
+    =  name { "." name }
 
 expression_constructor
     = "(" expression_fields ")"   (* list/tuple/object/map literal, brackets *)
 
 expression_fields
-    = expression_field [ "," expression_field ]* [ "," ]?
+    = expression_field { "," expression_field } ","?
 
 expression_field
-    = [ [ field ]? ":" ]? expression
+    = ( field? ":" )? expression
 
 type
-    = [ "comp" ]? inner_type
+    = "comp"? inner_type
 
 inner_type
     = path                  (* named type               *)
@@ -87,11 +87,11 @@ type_constructor
     = "[" type_fields "]"
 
 type_fields
-    = type_field [ "," type_field ]* [ "," ]?
+    = type_field { "," type_field } ","?
 
 type_field
-    = [ "-" ]? [ field ":" ]? type
+    = "-"? ( field ":" )? type
 
 field
-    = [ "~" ]? [ "#" ]? name [ "?" ]?
+    = "~"? "#"? name "?"?
 ```
