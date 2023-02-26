@@ -69,7 +69,7 @@ var (
 	_Token_index_6 = [...]uint8{0, 12, 18}
 )
 
-func (i Token) String() string {
+func (i Kind) String() string {
 	switch {
 	case i <= 22:
 		return _Token_name_0[_Token_index_0[i]:_Token_index_0[i+1]]

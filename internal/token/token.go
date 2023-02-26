@@ -1,10 +1,15 @@
 package token
 
-//go:generate stringer -type Token
-type Token uint
+type Token struct {
+	Kind Kind
+	Text []byte
+}
+
+//go:generate stringer -type Kind
+type Kind uint
 
 const (
-	ERROR Token = iota
+	ERROR Kind = iota
 	END
 
 	FUNC
@@ -36,26 +41,26 @@ const (
 	GREATER
 	GREATER_EQUALS
 
-	CURLY_LEFT  Token = '{'
-	CURLY_RIGHT Token = '}'
+	CURLY_LEFT  Kind = '{'
+	CURLY_RIGHT Kind = '}'
 
-	ROUND_LEFT  Token = '('
-	ROUND_RIGHT Token = ')'
+	ROUND_LEFT  Kind = '('
+	ROUND_RIGHT Kind = ')'
 
-	SQUARE_LEFT  Token = '['
-	SQUARE_RIGHT Token = ']'
+	SQUARE_LEFT  Kind = '['
+	SQUARE_RIGHT Kind = ']'
 
-	QUESTION Token = '?'
-	ADDRESS  Token = '@'
-	HASH     Token = '#'
+	QUESTION Kind = '?'
+	ADDRESS  Kind = '@'
+	HASH     Kind = '#'
 
-	PERIOD Token = '.'
-	COMMA  Token = ','
+	PERIOD Kind = '.'
+	COMMA  Kind = ','
 
-	PLUS    Token = '+'
-	MINUS   Token = '-'
-	STAR    Token = '*'
-	SLASH   Token = '/'
-	CARRET  Token = '^'
-	PERCENT Token = '%'
+	PLUS    Kind = '+'
+	MINUS   Kind = '-'
+	STAR    Kind = '*'
+	SLASH   Kind = '/'
+	CARRET  Kind = '^'
+	PERCENT Kind = '%'
 )

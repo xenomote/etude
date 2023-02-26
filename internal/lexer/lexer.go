@@ -1,9 +1,6 @@
 package lexer
 
 import (
-	"bufio"
-	"io"
-	"strings"
 	"unicode"
 
 	"github.com/xenomote/etude/internal/token"
@@ -17,42 +14,38 @@ func (l Error) Error() string {
 
 const (
 	ErrNotFound                = Error("no matching token found")
-	ErrUnexpectedEOF           = Error("unexpected end of input")
+	ErrUnexpectedToken         = Error("unexpected token type found")
 	ErrUnexpectedStringEOF     = Error("unexpected end of input before string close")
 	ErrUnexpectedStringNewline = Error("unexpected newline before string close")
-	ErrUnexpectedToken         = Error("unexpected token type found")
+	ErrBadNumber               = Error("malformed number token")
 )
 
 type Position struct {
 	l, c int
 }
 
-type Lexer struct {
-	src  *bufio.Reader
-	buf  *strings.Builder
-	pos  Position
-	got  token.Token
-	end  bool
-	last rune
+type lexer struct {
+	src []byte
+	a   int
+	b   int
+	pos Position
 }
 
-func New(r io.Reader) Lexer {
-	l := Lexer{
-		src: bufio.NewReader(r),
-		pos: Position{1, 1},
-		buf: &strings.Builder{},
-	}
-	l.read()
-
-	return l
+func New() *lexer {
+	return &lexer{pos: Position{1, 1}}
 }
 
-func (l *Lexer) Want(tokens ...token.Token) (token.Token, error) {
+func (l *lexer) Write(b []byte) (int, error) {
+	l.src = append(l.src, b...)
+	return len(b), nil
+}
+
+func (l *lexer) Any(tokens ...token.Kind) (token.Token, error) {
 	got, err := l.Next()
 
 	for _, want := range tokens {
-		if want == got {
-			return want, nil
+		if want == got.Kind {
+			return got, nil
 		}
 	}
 
@@ -63,19 +56,23 @@ func (l *Lexer) Want(tokens ...token.Token) (token.Token, error) {
 	return got, ErrUnexpectedToken
 }
 
-func (l *Lexer) Next() (token.Token, error) {
-	for !l.end && unicode.IsSpace(l.last) {
-		l.read()
-	}
-	l.Clear()
+func (l *lexer) Next() (token.Token, error) {
+	var c rune
+	for {
+		c = rune(l.read())
 
-	if l.end {
-		return l.fail(ErrUnexpectedEOF)
+		if c == EOF || !unicode.IsSpace(c) {
+			break
+		}
 	}
 
-	switch l.last {
+	if c == EOF {
+		return l.emit(token.END)
+	}
+
+	switch c {
 	case '{', '}', '[', ']', '(', ')', '?', '@', '#', '.', ',', '+', '-', '*', '/', '^', '%':
-		return l.emit(token.Token(l.last))
+		return l.emit(token.Kind(c))
 
 	case '=':
 		return l.either(token.EQUALS, token.DOUBLE_EQUALS)
@@ -96,101 +93,107 @@ func (l *Lexer) Next() (token.Token, error) {
 		return l.string()
 	}
 
-	if unicode.IsDigit(l.last) {
+	if unicode.IsDigit(rune(c)) {
 		return l.number()
 	}
 
-	if unicode.IsLetter(l.last) {
+	if unicode.IsLetter(c) {
 		return l.identifier()
 	}
 
 	return l.fail(ErrNotFound)
 }
 
-func (l *Lexer) Text() string {
-	s := l.buf.String()
-	if !l.end {
-		s = s[:len(s)-1]
-	}
+func (l *lexer) emit(kind token.Kind) (token.Token, error) {
+	text := l.src[l.a:l.b]
+	l.a = l.b
 
-	return s
+	return token.Token{Kind: kind, Text: text}, nil
 }
 
-func (l *Lexer) Clear() {
-	l.buf.Reset()
-	if !l.end {
-		l.buf.WriteRune(l.last)
-	}
+func (l *lexer) fail(err error) (token.Token, error) {
+	t, _ := l.emit(token.ERROR)
+
+	return t, err
 }
 
-func (l *Lexer) emit(t token.Token) (token.Token, error) {
-	l.got = t
-	l.read()
-	return t, nil
-}
+func (l *lexer) either(a, b token.Kind) (token.Token, error) {
+	c := l.read()
 
-func (l *Lexer) fail(err error) (token.Token, error) {
-	l.got = token.ERROR
-	return token.ERROR, err
-}
-
-func (l *Lexer) either(a, b token.Token) (token.Token, error) {
-	l.read()
-
-	if l.last == '=' {
+	if c == '=' {
 		return l.emit(b)
 	}
 
-	l.got = a
-	return a, nil
+	l.unread()
+	return l.emit(a)
 }
 
-func (l *Lexer) string() (token.Token, error) {
+func (l *lexer) string() (token.Token, error) {
 	for {
-		l.readEscape()
-
-		if l.end {
+		switch l.readEscape() {
+		case EOF:
 			return l.fail(ErrUnexpectedStringEOF)
-		}
 
-		if l.last == '\n' {
+		case '\n':
 			return l.fail(ErrUnexpectedStringNewline)
-		}
 
-		if l.last == '"' {
+		case '"':
 			return l.emit(token.STRING)
+
+		default:
 		}
 	}
 }
 
-func (l *Lexer) number() (token.Token, error) {
-	l.read()
-	return token.NUMBER, nil
+func (l *lexer) number() (token.Token, error) {
+	var c rune
+	for {
+		c = rune(l.read())
+
+		if !unicode.IsNumber(c) {
+			l.unread()
+			break
+		}
+	}
+
+	if c == EOF || !unicode.IsLetter(c) {
+		return l.emit(token.NUMBER)
+	}
+
+	return l.fail(ErrBadNumber)
 }
 
-func (l *Lexer) identifier() (token.Token, error) {
-	l.read()
-	return token.IDENTIFIER, nil
-}
+func (l *lexer) identifier() (token.Token, error) {
+	var c rune
+	for {
+		c = rune(l.read())
 
-func (l *Lexer) readEscape() {
-	l.read()
-	if l.last == '\\' {
-		l.read()
-		l.read()
+		if !(unicode.IsLetter(c) || unicode.IsNumber(c)) {
+			l.unread()
+			return l.emit(token.IDENTIFIER)
+		}
 	}
 }
 
-func (l *Lexer) read() {
-	c, _, err := l.src.ReadRune()
-	if err == io.EOF {
-		l.end = true
-		l.last = 0
-		return
+func (l *lexer) readEscape() byte {
+	c := l.read()
+	if c != '\\' {
+		return c
 	}
-	if err != nil {
-		panic(err)
+
+	l.read()
+	return '\\' // anything that is not the escaped character
+}
+
+const EOF = 0
+
+func (l *lexer) read() byte {
+	if !(l.b < len(l.src)) {
+		return EOF
 	}
+
+	l.b++
+	c := l.src[l.b-1]
 
 	if c == '\n' {
 		l.pos.l += 1
@@ -199,10 +202,20 @@ func (l *Lexer) read() {
 		l.pos.c += 1
 	}
 
-	_, err = l.buf.WriteRune(c)
-	if err != nil {
-		panic(err)
+	return c
+}
+
+func (l *lexer) unread() {
+	if !(l.b > l.a) {
+		panic("unread into previous token")
 	}
 
-	l.last = c
+	l.b--
+	c := l.src[l.b]
+
+	if c == '\n' {
+		panic("unread into previous line")
+	}
+
+	l.pos.c -= 1
 }

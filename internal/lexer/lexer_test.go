@@ -1,7 +1,7 @@
 package lexer_test
 
 import (
-	"strings"
+	"io"
 	"testing"
 
 	"github.com/xenomote/etude/internal/lexer"
@@ -9,10 +9,15 @@ import (
 )
 
 func TestWant(t *testing.T) {
-	s := `   ===@?><>=!=:=.,"abc \n"1c`
-	l := lexer.New(strings.NewReader(s))
+	s := `   ===@?><>=!=:=.,"abc \n"1+c`
+	l := lexer.New()
 
-	toks := []token.Token{
+	_, err := io.WriteString(l, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	toks := []token.Kind{
 		token.DOUBLE_EQUALS,
 		token.EQUALS,
 		token.ADDRESS,
@@ -26,13 +31,14 @@ func TestWant(t *testing.T) {
 		token.COMMA,
 		token.STRING,
 		token.NUMBER,
+		token.PLUS,
 		token.IDENTIFIER,
 	}
 
 	for _, tok := range toks {
-		got, err := l.Want(tok)
+		got, err := l.Any(tok)
 		if err != nil {
-			t.Fatal(tok, err, got)
+			t.Fatal("expected:", tok, "got:", got.Kind, "err:", err)
 		}
 	}
 }
@@ -47,10 +53,6 @@ func TestNextFail(t *testing.T) {
 			lexer.ErrNotFound,
 		},
 		{
-			"",
-			lexer.ErrUnexpectedEOF,
-		},
-		{
 			"\"hello",
 			lexer.ErrUnexpectedStringEOF,
 		},
@@ -60,10 +62,15 @@ func TestNextFail(t *testing.T) {
 		},
 	} {
 		t.Run(test.output.Error(), func(t *testing.T) {
-			l := lexer.New(strings.NewReader(test.input))
-			_, err := l.Next()
+			l := lexer.New()
+			_, err := io.WriteString(l, test.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			got, err := l.Next()
 			if err == nil {
-				t.Fatal("expected an error but got none")
+				t.Fatal("got:", got.Kind, "but expected error:", test.output)
 			}
 
 			if err != test.output {
