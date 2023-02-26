@@ -1,0 +1,41 @@
+package parser
+
+//go:generate stringer -type Production
+type Production uint
+
+const (
+	ERROR Production = iota
+
+	PROGRAM
+	BLOCK
+	STATEMENT
+	
+	FUNC
+	COMP
+	TYPEDEF
+
+	IF
+	ON
+	FOR
+	ASSIGN
+	RETURN
+
+	EXPRESSION
+	EXPRESSION_CONSTRUCTOR
+	EXPRESSION_FIELDS
+	EXPRESSION_FIELD
+	
+	TYPE
+	TYPE_CONSTRUCTOR
+	TYPE_FIELDS
+	TYPE_FIELD
+	
+	OP_PREFIX
+	OP_SUFFIX
+	OP_INFIX
+	
+	LITERAL
+
+	REF_NAME
+	REF_PATH
+)
