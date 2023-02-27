@@ -5,24 +5,28 @@ import (
 	"github.com/xenomote/etude/internal/token"
 )
 
-func (p *Parser) Write(tokens []token.Token)  {
-	p.tokens = append(p.tokens, tokens...)
+func New() parser {
+	return parser{}
 }
 
-type Parser struct {
-	tokens []token.Token
-	states []state
+func (p *parser) Write(tokens []token.Token) {
+	p.Tokens = append(p.Tokens, tokens...)
+}
 
-	output *production.Production
+type parser struct {
+	Tokens []token.Token
+	States []state
+
+	Output *production.Production
 }
 
 type state struct {
-	prod production.Production
+	prod   production.Production
 	offset int
 }
 
-func (p *Parser) top() *state {
-	return &p.states[len(p.states)-1]
+func (p *parser) top() *state {
+	return &p.States[len(p.States)-1]
 }
 
 func (s *state) push(prod any) {
@@ -33,46 +37,69 @@ func (s *state) push(prod any) {
 	state management
 */
 
-type parse func()error
+type parse func() error
 
-func (p *Parser) start(kind production.Kind) {
-	offset := p.top().offset
+func (p *parser) start(kind production.Kind) {
+	offset := 0
+	if len(p.States) > 0 {
+		offset = p.top().offset
+	}
 
-	p.states = append(p.states, state{})
+	p.States = append(p.States, state{})
 
 	top := p.top()
 	top.prod.Kind = kind
 	top.offset = offset
 }
 
-func (p *Parser) done() error {
-	prod := p.top().prod
-	p.states = p.states[:len(p.states)-1]
+func (p *parser) done() error {
+	done := p.top()
+	p.States = p.States[:len(p.States)-1]
 
-	if len(p.states) < 1 {
-		p.output = &prod
+	if len(p.States) < 1 {
+		p.Output = &done.prod
 		return nil
 	}
 
-	p.top().push(prod)
+	next := p.top()
+
+	next.offset = done.offset
+	next.push(done.prod)
 
 	return nil
 }
 
-func (p *Parser) fail(err error) error {
-	p.states = p.states[:len(p.states)-1]
-	return err
+type ParseError struct {
+	error
+}
+
+func (p ParseError) Error() string {
+	if p.error != nil {
+		return p.error.Error()
+	}
+
+	return "failed to parse"
+}
+
+func (p *parser) fail(err error) error {
+	p.States = p.States[:len(p.States)-1]
+
+	if pe, ok := err.(ParseError); ok {
+		return pe
+	}
+
+	return ParseError{err}
 }
 
 /*
 	stream management
 */
 
-func (p *Parser) peek() token.Token {
-	return p.tokens[p.top().offset]
+func (p *parser) peek() token.Token {
+	return p.Tokens[p.top().offset]
 }
 
-func (p *Parser) take() {
+func (p *parser) take() {
 	top := p.top()
 
 	top.push(p.peek())

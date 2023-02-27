@@ -1,8 +1,14 @@
 package token
 
+import "fmt"
+
 type Token struct {
 	Kind Kind
 	Text []byte
+}
+
+func (t Token) String() string {
+	return fmt.Sprint("{\"", string(t.Text), "\", ", t.Kind.String(), "}")
 }
 
 //go:generate stringer -type Kind
@@ -22,7 +28,6 @@ const (
 	FOR
 	RETURN
 
-	COLON
 	EQUALS
 	EXCLAIM
 	ELLIPSIS
@@ -67,6 +72,7 @@ const (
 	HASH     Kind = '#'
 	TILDE    Kind = '~'
 
+	COLON  Kind = ':'
 	COMMA  Kind = ','
 	PERIOD Kind = '.'
 )

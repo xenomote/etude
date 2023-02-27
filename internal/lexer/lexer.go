@@ -69,6 +69,7 @@ func (l *lexer) Next() (token.Token, error) {
 		c = rune(l.read())
 
 		if c == EOF || !unicode.IsSpace(c) {
+			l.a = l.b - 1
 			break
 		}
 	}
@@ -78,7 +79,7 @@ func (l *lexer) Next() (token.Token, error) {
 	}
 
 	switch c {
-	case '{', '}', '[', ']', '(', ')', '?', '@', '#', '.', ',', '+', '-', '*', '/', '^', '%', ':':
+	case '{', '}', '[', ']', '(', ')', '?', '@','~', '#', '.', ',', '+', '-', '*', '/', '^', '%', ':':
 		return l.emit(token.Kind(c))
 
 	case '=':

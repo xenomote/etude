@@ -5,40 +5,33 @@ import (
 	"github.com/xenomote/etude/internal/token"
 )
 
-func (p *Parser) Program() error {
+func (p *parser) Program() error {
 	p.start(production.PROGRAM)
 
-loop:
+	defs := []parse{
+		p.Comp,
+		p.TypeDef,
+		p.Func,
+	}
+
+	loop:
 	for {
-		var f parse
-		switch p.peek().Kind {
-
-		case token.COMP:
-			f = p.Comp
-
-		case token.TYPE:
-			f = p.TypeDef
-
-		case token.FUNC:
-			f = p.Func
-
-		case token.END:
-			break loop
-
-		default:
-			return p.fail(nil)
+		for _, def := range defs {
+			err := def()
+			if err != nil {
+				break loop
+			}
 		}
-
-		err := f()
-		if err != nil {
-			return p.fail(err)
-		}
+	}
+	
+	if p.peek().Kind != token.END {
+		return p.fail(nil)
 	}
 
 	return p.done()
 }
 
-func (p *Parser) Comp() error {
+func (p *parser) Comp() error {
 	p.start(production.COMP)
 
 	if p.peek().Kind != token.COMP {
@@ -59,7 +52,7 @@ func (p *Parser) Comp() error {
 	return p.done()
 }
 
-func (p *Parser) TypeDef() error {
+func (p *parser) TypeDef() error {
 	p.start(production.TYPEDEF)
 
 	if p.peek().Kind != token.TYPE {
@@ -80,7 +73,7 @@ func (p *Parser) TypeDef() error {
 	return p.done()
 }
 
-func (p *Parser) Func() error {
+func (p *parser) Func() error {
 	p.start(production.FUNC)
 
 	if p.peek().Kind != token.FUNC {
@@ -115,7 +108,7 @@ func (p *Parser) Func() error {
 	return p.done()
 }
 
-func (p *Parser) Block() error {
+func (p *parser) Block() error {
 	p.start(production.BLOCK)
 
 	if p.peek().Kind != token.CURLY_LEFT {
@@ -137,7 +130,7 @@ func (p *Parser) Block() error {
 	}
 }
 
-func (p *Parser) Statement() error {
+func (p *parser) Statement() error {
 	p.start(production.STATEMENT)
 
 	stmts := []parse{
@@ -164,7 +157,7 @@ func (p *Parser) Statement() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) If() error {
+func (p *parser) If() error {
 	p.start(production.IF)
 
 	if p.peek().Kind != token.IF {
@@ -207,7 +200,7 @@ func (p *Parser) If() error {
 	return p.done()
 }
 
-func (p *Parser) On() error {
+func (p *parser) On() error {
 	p.start(production.ON)
 
 	err := p.Expression()
@@ -257,7 +250,7 @@ loop:
 	return p.done()
 }
 
-func (p *Parser) For() error {
+func (p *parser) For() error {
 	p.start(production.FOR)
 
 	if p.peek().Kind != token.FOR {
@@ -300,7 +293,7 @@ func (p *Parser) For() error {
 	return p.done()
 }
 
-func (p *Parser) Return() error {
+func (p *parser) Return() error {
 	p.start(production.RETURN)
 
 	if p.peek().Kind != token.RETURN {
@@ -313,7 +306,7 @@ func (p *Parser) Return() error {
 	return p.done()
 }
 
-func (p *Parser) Assign() error {
+func (p *parser) Assign() error {
 	p.start(production.ASSIGN)
 
 	err := p.Expression()
@@ -333,7 +326,7 @@ func (p *Parser) Assign() error {
 	return p.done()
 }
 
-func (p *Parser) Expression() error {
+func (p *parser) Expression() error {
 	p.start(production.EXPRESSION)
 
 	exprs := []func() error{
@@ -353,7 +346,7 @@ func (p *Parser) Expression() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) ExpressionOperator() error {
+func (p *parser) ExpressionOperator() error {
 	p.start(production.EXPRESSION_OPERATOR)
 
 	for {
@@ -369,22 +362,34 @@ func (p *Parser) ExpressionOperator() error {
 	}
 }
 
-func (p *Parser) Operand() error {
+func (p *parser) Operand() error {
 	p.start(production.OPERAND)
 
 	p.OpPrefix()
 
-	err := p.Expression()
-	if err != nil {
-		return p.fail(err)
+	oprs := []parse{
+		p.RefPath,
+		p.Literal,
+		p.ExpressionConstructor,
+		// no Expression or ExpressionOperator to avoid recursion
 	}
 
+	for _, opr := range oprs {
+		err := opr()
+		if err == nil {
+			goto success
+		}
+
+	}
+	return p.fail(nil)
+
+success:
 	p.OpSuffix()
 
 	return p.done()
 }
 
-func (p *Parser) OpPrefix() error {
+func (p *parser) OpPrefix() error {
 	p.start(production.OP_PREFIX)
 
 	prefs := []token.Kind{
@@ -402,7 +407,7 @@ func (p *Parser) OpPrefix() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) OpSuffix() error {
+func (p *parser) OpSuffix() error {
 	p.start(production.OP_SUFFIX)
 
 	suffs := []token.Kind{
@@ -418,7 +423,7 @@ func (p *Parser) OpSuffix() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) OpInfix() error {
+func (p *parser) OpInfix() error {
 	p.start(production.OP_INFIX)
 
 	infs := []token.Kind{
@@ -452,7 +457,7 @@ func (p *Parser) OpInfix() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) Literal() error {
+func (p *parser) Literal() error {
 	p.start(production.LITERAL)
 
 	lits := []token.Kind{
@@ -463,6 +468,7 @@ func (p *Parser) Literal() error {
 
 	for _, lit := range lits {
 		if p.peek().Kind == lit {
+			p.take()
 			return p.done()
 		}
 	}
@@ -470,7 +476,7 @@ func (p *Parser) Literal() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) ExpressionConstructor() error {
+func (p *parser) ExpressionConstructor() error {
 	p.start(production.EXPRESSION_CONSTRUCTOR)
 
 	if p.peek().Kind != token.ROUND_LEFT {
@@ -490,7 +496,7 @@ func (p *Parser) ExpressionConstructor() error {
 		p.take()
 	}
 
-	if p.peek().Kind != token.ROUND_LEFT {
+	if p.peek().Kind != token.ROUND_RIGHT {
 		return p.fail(nil)
 	}
 	p.take()
@@ -498,7 +504,7 @@ func (p *Parser) ExpressionConstructor() error {
 	return p.done()
 }
 
-func (p *Parser) ExpressionField() error {
+func (p *parser) ExpressionField() error {
 	p.start(production.EXPRESSION_FIELD)
 
 	err := p.RefName()
@@ -518,9 +524,7 @@ func (p *Parser) ExpressionField() error {
 	return p.done()
 }
 
-
-
-func (p *Parser) Type() error {
+func (p *parser) Type() error {
 	p.start(production.TYPE)
 
 	if p.peek().Kind == token.COMP {
@@ -543,7 +547,7 @@ func (p *Parser) Type() error {
 	return p.fail(nil)
 }
 
-func (p *Parser) TypeConstructor() error {
+func (p *parser) TypeConstructor() error {
 	p.start(production.TYPE_CONSTRUCTOR)
 
 	if p.peek().Kind != token.SQUARE_LEFT {
@@ -571,7 +575,7 @@ func (p *Parser) TypeConstructor() error {
 	return p.done()
 }
 
-func (p *Parser) TypeField() error {
+func (p *parser) TypeField() error {
 	p.start(production.TYPE_FIELD)
 
 	if p.peek().Kind == token.MINUS {
@@ -591,11 +595,10 @@ func (p *Parser) TypeField() error {
 		return p.fail(err)
 	}
 
-
 	return p.done()
 }
 
-func (p *Parser) TypeMap() error {
+func (p *parser) TypeMap() error {
 	p.start(production.TYPE_MAP)
 
 	if p.peek().Kind != token.SQUARE_LEFT {
@@ -626,9 +629,7 @@ func (p *Parser) TypeMap() error {
 	return p.done()
 }
 
-
-
-func (p *Parser) RefName() error {
+func (p *parser) RefName() error {
 	p.start(production.REF_NAME)
 
 	if p.peek().Kind == token.TILDE {
@@ -651,7 +652,7 @@ func (p *Parser) RefName() error {
 	return p.done()
 }
 
-func (p *Parser) RefPath() error {
+func (p *parser) RefPath() error {
 	p.start(production.REF_PATH)
 
 	if p.peek().Kind == token.TILDE {
@@ -674,7 +675,7 @@ func (p *Parser) RefPath() error {
 	return p.done()
 }
 
-func (p *Parser) Path() error {
+func (p *parser) Path() error {
 	p.start(production.PATH)
 
 	for {

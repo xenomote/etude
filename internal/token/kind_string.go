@@ -18,24 +18,23 @@ func _() {
 	_ = x[ON-7]
 	_ = x[FOR-8]
 	_ = x[RETURN-9]
-	_ = x[COLON-10]
-	_ = x[EQUALS-11]
-	_ = x[EXCLAIM-12]
-	_ = x[ELLIPSIS-13]
-	_ = x[DOUBLE_EQUALS-14]
-	_ = x[EXCLAIM_EQUALS-15]
-	_ = x[LESS-16]
-	_ = x[LESS_EQUALS-17]
-	_ = x[GREATER-18]
-	_ = x[GREATER_EQUALS-19]
-	_ = x[DOUBLE_AMPERSAND-20]
-	_ = x[DOUBLE_PIPE-21]
-	_ = x[SHIFT_LEFT-22]
-	_ = x[SHIFT_RIGHT-23]
-	_ = x[NUMBER-24]
-	_ = x[STRING-25]
-	_ = x[BOOLEAN-26]
-	_ = x[IDENTIFIER-27]
+	_ = x[EQUALS-10]
+	_ = x[EXCLAIM-11]
+	_ = x[ELLIPSIS-12]
+	_ = x[DOUBLE_EQUALS-13]
+	_ = x[EXCLAIM_EQUALS-14]
+	_ = x[LESS-15]
+	_ = x[LESS_EQUALS-16]
+	_ = x[GREATER-17]
+	_ = x[GREATER_EQUALS-18]
+	_ = x[DOUBLE_AMPERSAND-19]
+	_ = x[DOUBLE_PIPE-20]
+	_ = x[SHIFT_LEFT-21]
+	_ = x[SHIFT_RIGHT-22]
+	_ = x[NUMBER-23]
+	_ = x[STRING-24]
+	_ = x[BOOLEAN-25]
+	_ = x[IDENTIFIER-26]
 	_ = x[CURLY_LEFT-123]
 	_ = x[CURLY_RIGHT-125]
 	_ = x[ROUND_LEFT-40]
@@ -52,33 +51,35 @@ func _() {
 	_ = x[QUESTION-63]
 	_ = x[HASH-35]
 	_ = x[TILDE-126]
+	_ = x[COLON-58]
 	_ = x[COMMA-44]
 	_ = x[PERIOD-46]
 }
 
 const (
-	_Kind_name_0 = "ERRORENDCOMPTYPEFUNCIFORONFORRETURNCOLONEQUALSEXCLAIMELLIPSISDOUBLE_EQUALSEXCLAIM_EQUALSLESSLESS_EQUALSGREATERGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIER"
+	_Kind_name_0 = "ERRORENDCOMPTYPEFUNCIFORONFORRETURNEQUALSEXCLAIMELLIPSISDOUBLE_EQUALSEXCLAIM_EQUALSLESSLESS_EQUALSGREATERGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIER"
 	_Kind_name_1 = "HASH"
 	_Kind_name_2 = "PERCENT"
 	_Kind_name_3 = "ROUND_LEFTROUND_RIGHTSTARPLUSCOMMAMINUSPERIODSLASH"
-	_Kind_name_4 = "QUESTIONADDRESS"
-	_Kind_name_5 = "SQUARE_LEFT"
-	_Kind_name_6 = "SQUARE_RIGHTCARRET"
-	_Kind_name_7 = "CURLY_LEFT"
-	_Kind_name_8 = "CURLY_RIGHTTILDE"
+	_Kind_name_4 = "COLON"
+	_Kind_name_5 = "QUESTIONADDRESS"
+	_Kind_name_6 = "SQUARE_LEFT"
+	_Kind_name_7 = "SQUARE_RIGHTCARRET"
+	_Kind_name_8 = "CURLY_LEFT"
+	_Kind_name_9 = "CURLY_RIGHTTILDE"
 )
 
 var (
-	_Kind_index_0 = [...]uint8{0, 5, 8, 12, 16, 20, 22, 24, 26, 29, 35, 40, 46, 53, 61, 74, 88, 92, 103, 110, 124, 140, 151, 161, 172, 178, 184, 191, 201}
+	_Kind_index_0 = [...]uint8{0, 5, 8, 12, 16, 20, 22, 24, 26, 29, 35, 41, 48, 56, 69, 83, 87, 98, 105, 119, 135, 146, 156, 167, 173, 179, 186, 196}
 	_Kind_index_3 = [...]uint8{0, 10, 21, 25, 29, 34, 39, 45, 50}
-	_Kind_index_4 = [...]uint8{0, 8, 15}
-	_Kind_index_6 = [...]uint8{0, 12, 18}
-	_Kind_index_8 = [...]uint8{0, 11, 16}
+	_Kind_index_5 = [...]uint8{0, 8, 15}
+	_Kind_index_7 = [...]uint8{0, 12, 18}
+	_Kind_index_9 = [...]uint8{0, 11, 16}
 )
 
 func (i Kind) String() string {
 	switch {
-	case i <= 27:
+	case i <= 26:
 		return _Kind_name_0[_Kind_index_0[i]:_Kind_index_0[i+1]]
 	case i == 35:
 		return _Kind_name_1
@@ -87,19 +88,21 @@ func (i Kind) String() string {
 	case 40 <= i && i <= 47:
 		i -= 40
 		return _Kind_name_3[_Kind_index_3[i]:_Kind_index_3[i+1]]
+	case i == 58:
+		return _Kind_name_4
 	case 63 <= i && i <= 64:
 		i -= 63
-		return _Kind_name_4[_Kind_index_4[i]:_Kind_index_4[i+1]]
+		return _Kind_name_5[_Kind_index_5[i]:_Kind_index_5[i+1]]
 	case i == 91:
-		return _Kind_name_5
+		return _Kind_name_6
 	case 93 <= i && i <= 94:
 		i -= 93
-		return _Kind_name_6[_Kind_index_6[i]:_Kind_index_6[i+1]]
+		return _Kind_name_7[_Kind_index_7[i]:_Kind_index_7[i+1]]
 	case i == 123:
-		return _Kind_name_7
+		return _Kind_name_8
 	case 125 <= i && i <= 126:
 		i -= 125
-		return _Kind_name_8[_Kind_index_8[i]:_Kind_index_8[i+1]]
+		return _Kind_name_9[_Kind_index_9[i]:_Kind_index_9[i+1]]
 	default:
 		return "Kind(" + strconv.FormatInt(int64(i), 10) + ")"
 	}

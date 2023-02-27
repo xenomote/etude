@@ -55,7 +55,7 @@ func TestNextFail(t *testing.T) {
 		output lexer.Error
 	}{
 		{
-			"~",
+			"`",
 			lexer.ErrNotFound,
 		},
 		{
