@@ -14,21 +14,24 @@ func (p *parser) Program() error {
 		p.Func,
 	}
 
-	loop:
 	for {
+		found := false
 		for _, def := range defs {
 			err := def()
-			if err != nil {
-				break loop
+			if err == nil {
+				found = true
+				break
 			}
 		}
-	}
-	
-	if p.peek().Kind != token.END {
-		return p.fail(nil)
-	}
 
-	return p.done()
+		if !found {
+			return p.fail(nil)
+		}
+
+		if p.peek().Kind == token.END {
+			return p.done()
+		}
+	}
 }
 
 func (p *parser) Comp() error {
@@ -95,10 +98,7 @@ func (p *parser) Func() error {
 		}
 	}
 
-	err = p.TypeConstructor()
-	if err != nil {
-		return p.fail(err)
-	}
+	p.TypeConstructor()
 
 	err = p.Block()
 	if err != nil {
@@ -330,8 +330,8 @@ func (p *parser) Expression() error {
 	p.start(production.EXPRESSION)
 
 	exprs := []func() error{
+		p.RefPath, // must be before literal 
 		p.Literal,
-		p.RefPath,
 		p.ExpressionConstructor,
 		p.ExpressionOperator,
 	}
@@ -461,7 +461,7 @@ func (p *parser) Literal() error {
 	p.start(production.LITERAL)
 
 	lits := []token.Kind{
-		token.IDENTIFIER,
+		token.BOOLEAN,
 		token.STRING,
 		token.NUMBER,
 	}
@@ -507,12 +507,22 @@ func (p *parser) ExpressionConstructor() error {
 func (p *parser) ExpressionField() error {
 	p.start(production.EXPRESSION_FIELD)
 
-	err := p.RefName()
 	if p.peek().Kind == token.COLON {
+		p.take()
+
+		err := p.RefName()
 		if err != nil {
-			return p.fail(nil) // should not have been a colon, ref is fine
+			return p.fail(err)
 		}
 
+		return p.done()
+	}
+
+	err := p.RefName()
+	if err == nil {
+		if p.peek().Kind != token.COLON {
+			return p.fail(nil)
+		}
 		p.take()
 	}
 

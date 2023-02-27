@@ -76,7 +76,8 @@ expression_constructor
     = "(" expression_field { "," expression_field } ")"   (* list/tuple/object/map literal, brackets *)
 
 expression_field
-    = ref_name? ":"? expression
+    = ":" ref_name 
+    = ( ref_name ":" )? expression
 
 
 

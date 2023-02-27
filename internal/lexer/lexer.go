@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	//"fmt"
 	"unicode"
 
 	"github.com/xenomote/etude/internal/token"
@@ -127,13 +126,14 @@ func (l *lexer) fail(err error) (token.Token, error) {
 }
 
 func (l *lexer) ifEq(a, b token.Kind) (token.Token, error) {
-	c := l.read()
+	c := l.peek()
 
-	if c == '=' {
-		return l.emit(b)
+	if c != '=' {
+		return l.emit(a)
 	}
 
-	l.unread()
+	l.read()
+
 	return l.emit(a)
 }
 
@@ -157,16 +157,17 @@ func (l *lexer) string() (token.Token, error) {
 func (l *lexer) number() (token.Token, error) {
 	var c rune
 	for {
-		c = rune(l.read())
+		c = rune(l.peek())
 
 		if c == EOF {
 			break
 		}
 
 		if !unicode.IsNumber(c) {
-			l.unread()
 			break
 		}
+
+		l.read()
 	}
 
 	if c == EOF || !unicode.IsLetter(c) {
@@ -185,21 +186,25 @@ var keywords = map[string]token.Kind{
 	"or": token.OR,
 	"for": token.FOR,
 	"return": token.RETURN,
+
+	"true": token.BOOLEAN,
+	"false": token.BOOLEAN,
 }
 
 func (l *lexer) identifier() (token.Token, error) {
 	var c rune
 	for {
-		c = rune(l.read())
+		c = rune(l.peek())
 
 		if c == EOF {
 			break
 		}
 
 		if !(unicode.IsLetter(c) || unicode.IsNumber(c)) {
-			l.unread()
 			break
 		}
+
+		l.read()
 	}
 
 	kind, exists := keywords[string(l.text())]
@@ -240,17 +245,10 @@ func (l *lexer) read() byte {
 	return c
 }
 
-func (l *lexer) unread() {
-	if !(l.b > l.a) {
-		panic("unread into previous token")
+func (l *lexer) peek() byte {
+	if !(l.b < len(l.src)) {
+		return EOF
 	}
 
-	l.b--
-	c := l.src[l.b]
-
-	if c == '\n' {
-		panic("unread into previous line")
-	}
-
-	l.pos.c -= 1
+	return l.src[l.b]
 }

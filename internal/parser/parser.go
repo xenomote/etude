@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/xenomote/etude/internal/production"
 	"github.com/xenomote/etude/internal/token"
 )
@@ -40,10 +42,7 @@ func (s *state) push(prod any) {
 type parse func() error
 
 func (p *parser) start(kind production.Kind) {
-	offset := 0
-	if len(p.States) > 0 {
-		offset = p.top().offset
-	}
+	offset := p.right()
 
 	p.States = append(p.States, state{})
 
@@ -53,6 +52,8 @@ func (p *parser) start(kind production.Kind) {
 }
 
 func (p *parser) done() error {
+	p.print("+++")
+
 	done := p.top()
 	p.States = p.States[:len(p.States)-1]
 
@@ -82,6 +83,8 @@ func (p ParseError) Error() string {
 }
 
 func (p *parser) fail(err error) error {
+	p.print("---")
+
 	p.States = p.States[:len(p.States)-1]
 
 	if pe, ok := err.(ParseError); ok {
@@ -104,4 +107,41 @@ func (p *parser) take() {
 
 	top.push(p.peek())
 	top.offset++
+}
+
+func (p *parser) left() int {
+	if len(p.States) < 2 {
+		return 0
+	}
+
+	return p.States[len(p.States)-2].offset
+}
+
+func (p *parser) right() int {
+	if len(p.States) < 1 {
+		return 0
+	}
+
+	return p.top().offset
+}
+
+/*
+	debug
+*/
+
+func (p *parser) print(msg string) {
+	for _, s := range p.States {
+		fmt.Print(s.prod.Kind, " ")
+	}
+
+	fmt.Print(msg, " ")
+
+	l := p.left()
+	r := p.right()
+	
+	for i := l; i < r; i++ {
+		fmt.Print(p.Tokens[i].Kind, " ")
+	}
+
+	fmt.Println()
 }
