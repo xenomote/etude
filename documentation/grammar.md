@@ -2,26 +2,20 @@
 program
     = { "-"? ( comp / typedef / func ) }+
 
-comp
-    = "comp" name expression
-
-typedef
-    = "type" name type
-
-func
-    = "func" ref_name ( ":" type )? type_constructor? block
-
 block
-    = "{" { statement }+ "}"
+    = "{" { statement } "}"
 
 statement
     = if
     = on
     = for
     = comp
-    = assign
     = typedef
-    = "return" expression?
+    = func
+    = assign
+    = return
+
+
 
 if
     = "if" expression block { "or" expression block } ( "or" block )?
@@ -35,24 +29,43 @@ for
 assign
     = expression "=" expression
 
+return
+    = "return" expression?
+
+comp
+    = "comp" name expression
+
+typedef
+    = "type" name type
+
+func
+    = "func" ref_name ( ":" type )? type_constructor? block
+
+
+
 expression
     = literal
     = ref_path
     = expression_constructor
-    = op_prefix expression
-    = expression op_suffix
-    = expression { op_infix expression }+
+    = expression_operator
+
+expression_operator
+    = operand { op_infix operand }
+
+operand
+    = op_prefix? expression op_suffix?
    
 op_prefix
     = ("-" / "!" / "@")
-    
+
 op_suffix
     = ("...")
 
 op_infix
-	= ( "+" / "-" / "*" / "/" / "^" / "%" ) (* arithmetic       *)
-    = ( "==" / "!=" / "&&" / "||" )         (* boolean          *)
-    = ( "<<" / ">>" )                       (* object/map merge *)
+	= ( "+" / "-" / "*" / "/" / "^" / "%" )     (* arithmetic       *)
+    = ( "==" / "!=" / "<" / ">" / "<=" / ">=")  (* comparison       *)
+    = ( "&&" / "||")                            (* boolean          *)
+    = ( "<<" / ">>" )                           (* object/map merge *)
 
 literal
     = number
@@ -60,29 +73,26 @@ literal
     = boolean
 
 expression_constructor
-    = "(" expression_fields ")"   (* list/tuple/object/map literal, brackets *)
-
-expression_fields
-    = expression_field { "," expression_field } ","?
+    = "(" expression_field { "," expression_field } ")"   (* list/tuple/object/map literal, brackets *)
 
 expression_field
-    = ( field? ":" )? expression
+    = ref_name? ":"? expression
 
 
 
 type
-    = "comp"? path                  (* named type               *)
-    = "comp"? type_constructor      (* list/tuple/object type   *)
-    = "comp"? [" type ":" type "]"  (* map/function type        *)
+    = "comp"? path              (* named type               *)
+    = "comp"? type_constructor  (* list/tuple/object type   *)
+    = "comp"? type_map          (* map/function type        *)
+
+type_map
+    = [" type "/" type "]"
 
 type_constructor
-    = "[" type_fields "]"
-
-type_fields
-    = type_field { "," type_field } ","?
+    = "[" type_field { "," type_field } "]"
 
 type_field
-    = "-"? ( field ":" )? type
+    = "-"? ( ref_name ":" )? type
 
 
 

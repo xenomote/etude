@@ -1,15 +1,20 @@
-package parser
+package production
 
-//go:generate stringer -type Production
-type Production uint
+type Production struct {
+	Kind Kind
+	Productions []any
+}
+
+//go:generate stringer -type Kind
+type Kind uint
 
 const (
-	ERROR Production = iota
+	ERROR Kind = iota
 
 	PROGRAM
 	BLOCK
 	STATEMENT
-	
+
 	FUNC
 	COMP
 	TYPEDEF
@@ -21,21 +26,23 @@ const (
 	RETURN
 
 	EXPRESSION
+	EXPRESSION_OPERATOR
 	EXPRESSION_CONSTRUCTOR
-	EXPRESSION_FIELDS
 	EXPRESSION_FIELD
-	
+
 	TYPE
 	TYPE_CONSTRUCTOR
-	TYPE_FIELDS
 	TYPE_FIELD
-	
+	TYPE_MAP
+
+	OPERAND
 	OP_PREFIX
 	OP_SUFFIX
 	OP_INFIX
-	
+
 	LITERAL
 
 	REF_NAME
 	REF_PATH
+	PATH
 )

@@ -9,7 +9,7 @@ import (
 )
 
 func TestWant(t *testing.T) {
-	s := `   ===@?><>=!=:=.,"abc \n"1+c`
+	s := `   ===@?><>=!=comp.,"abc \n"1+cfunc#func`
 	l := lexer.New()
 
 	_, err := io.WriteString(l, s)
@@ -26,19 +26,25 @@ func TestWant(t *testing.T) {
 		token.LESS,
 		token.GREATER_EQUALS,
 		token.EXCLAIM_EQUALS,
-		token.COLON_EQUALS,
+		token.COMP,
 		token.PERIOD,
 		token.COMMA,
 		token.STRING,
 		token.NUMBER,
 		token.PLUS,
 		token.IDENTIFIER,
+		token.HASH,
+		token.FUNC,
 	}
 
 	for _, tok := range toks {
-		got, err := l.Any(tok)
+		got, err := l.Next()
 		if err != nil {
-			t.Fatal("expected:", tok, "got:", got.Kind, "err:", err)
+			t.Fatal("unexpected error:", err)
+		}
+
+		if tok != got.Kind {
+			t.Fatal("expected:", tok, "got:", got.Kind, string(got.Text))
 		}
 	}
 }

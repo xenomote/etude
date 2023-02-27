@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	//"fmt"
 	"unicode"
 
 	"github.com/xenomote/etude/internal/token"
@@ -24,6 +25,28 @@ type Position struct {
 	l, c int
 }
 
+type Lexer interface {
+	Write(b []byte) (int, error)
+	Next() (token.Token, error)
+}
+
+func ReadAll(l lexer) ([]token.Token, error) {
+	var tokens []token.Token
+
+	for {
+		t, err := l.Next()
+		if err != nil {
+			return tokens, err
+		}
+
+		tokens = append(tokens, t)
+
+		if t.Kind == token.END {
+			return tokens, nil
+		}
+	}
+}
+
 type lexer struct {
 	src []byte
 	a   int
@@ -38,22 +61,6 @@ func New() *lexer {
 func (l *lexer) Write(b []byte) (int, error) {
 	l.src = append(l.src, b...)
 	return len(b), nil
-}
-
-func (l *lexer) Any(tokens ...token.Kind) (token.Token, error) {
-	got, err := l.Next()
-
-	for _, want := range tokens {
-		if want == got.Kind {
-			return got, nil
-		}
-	}
-
-	if err != nil {
-		return got, err
-	}
-
-	return got, ErrUnexpectedToken
 }
 
 func (l *lexer) Next() (token.Token, error) {
@@ -71,23 +78,20 @@ func (l *lexer) Next() (token.Token, error) {
 	}
 
 	switch c {
-	case '{', '}', '[', ']', '(', ')', '?', '@', '#', '.', ',', '+', '-', '*', '/', '^', '%':
+	case '{', '}', '[', ']', '(', ')', '?', '@', '#', '.', ',', '+', '-', '*', '/', '^', '%', ':':
 		return l.emit(token.Kind(c))
 
 	case '=':
-		return l.either(token.EQUALS, token.DOUBLE_EQUALS)
-
-	case ':':
-		return l.either(token.COLON, token.COLON_EQUALS)
+		return l.ifEq(token.EQUALS, token.DOUBLE_EQUALS)
 
 	case '!':
-		return l.either(token.EXCLAIM, token.EXCLAIM_EQUALS)
+		return l.ifEq(token.EXCLAIM, token.EXCLAIM_EQUALS)
 
 	case '<':
-		return l.either(token.LESS, token.LESS_EQUALS)
+		return l.ifEq(token.LESS, token.LESS_EQUALS)
 
 	case '>':
-		return l.either(token.GREATER, token.GREATER_EQUALS)
+		return l.ifEq(token.GREATER, token.GREATER_EQUALS)
 
 	case '"':
 		return l.string()
@@ -104,8 +108,12 @@ func (l *lexer) Next() (token.Token, error) {
 	return l.fail(ErrNotFound)
 }
 
+func (l *lexer) text() []byte {
+	return l.src[l.a:l.b]
+}
+
 func (l *lexer) emit(kind token.Kind) (token.Token, error) {
-	text := l.src[l.a:l.b]
+	text := l.text()
 	l.a = l.b
 
 	return token.Token{Kind: kind, Text: text}, nil
@@ -117,7 +125,7 @@ func (l *lexer) fail(err error) (token.Token, error) {
 	return t, err
 }
 
-func (l *lexer) either(a, b token.Kind) (token.Token, error) {
+func (l *lexer) ifEq(a, b token.Kind) (token.Token, error) {
 	c := l.read()
 
 	if c == '=' {
@@ -150,6 +158,10 @@ func (l *lexer) number() (token.Token, error) {
 	for {
 		c = rune(l.read())
 
+		if c == EOF {
+			break
+		}
+
 		if !unicode.IsNumber(c) {
 			l.unread()
 			break
@@ -163,16 +175,38 @@ func (l *lexer) number() (token.Token, error) {
 	return l.fail(ErrBadNumber)
 }
 
+var keywords = map[string]token.Kind{
+	"comp": token.COMP,
+	"type": token.TYPE,
+	"func": token.FUNC,
+
+	"if" : token.IF,
+	"or": token.OR,
+	"for": token.FOR,
+	"return": token.RETURN,
+}
+
 func (l *lexer) identifier() (token.Token, error) {
 	var c rune
 	for {
 		c = rune(l.read())
 
+		if c == EOF {
+			break
+		}
+
 		if !(unicode.IsLetter(c) || unicode.IsNumber(c)) {
 			l.unread()
-			return l.emit(token.IDENTIFIER)
+			break
 		}
 	}
+
+	kind, exists := keywords[string(l.text())]
+	if exists {
+		return l.emit(kind)
+	}
+
+	return l.emit(token.IDENTIFIER)
 }
 
 func (l *lexer) readEscape() byte {
@@ -192,8 +226,8 @@ func (l *lexer) read() byte {
 		return EOF
 	}
 
+	c := l.src[l.b]
 	l.b++
-	c := l.src[l.b-1]
 
 	if c == '\n' {
 		l.pos.l += 1
