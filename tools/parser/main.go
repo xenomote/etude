@@ -13,7 +13,9 @@ const s =
 `
 comp a (x?: a?, :~#y, :~#z?, true)
 
-func x {}
+func x [a: num, b: num]{
+	return
+}
 
 comp b 1
 `

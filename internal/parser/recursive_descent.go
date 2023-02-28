@@ -203,6 +203,11 @@ func (p *parser) If() error {
 func (p *parser) On() error {
 	p.start(production.ON)
 
+	if p.peek().Kind != token.ON {
+		return p.fail(nil)
+	}
+	p.take()
+
 	err := p.Expression()
 	if err != nil {
 		return p.fail(err)
@@ -301,7 +306,15 @@ func (p *parser) Return() error {
 	}
 	p.take()
 
-	p.Expression()
+	// lookahead optimisation to terminate early
+	if p.peek().Kind == token.CURLY_RIGHT {
+		return p.done()
+	}
+
+	err := p.Expression()
+	if err != nil {
+		return p.fail(err)
+	}
 
 	return p.done()
 }

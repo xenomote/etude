@@ -99,6 +99,12 @@ func (p *parser) fail(err error) error {
 */
 
 func (p *parser) peek() token.Token {
+	off := p.right()
+
+	if !(off < len(p.Tokens)) {
+		return token.Token{Kind: token.ERROR}
+	}
+
 	return p.Tokens[p.top().offset]
 }
 
@@ -130,18 +136,17 @@ func (p *parser) right() int {
 */
 
 func (p *parser) print(msg string) {
+	fmt.Print(msg, " ")
+
 	for _, s := range p.States {
 		fmt.Print(s.prod.Kind, " ")
 	}
-
-	fmt.Print(msg, " ")
 
 	l := p.left()
 	r := p.right()
 	
 	for i := l; i < r; i++ {
-		fmt.Print(p.Tokens[i].Kind, " ")
+		fmt.Print(string(p.Tokens[i].Text), " ")
 	}
-
 	fmt.Println()
 }
