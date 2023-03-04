@@ -1,8 +1,14 @@
 package production
 
+import "fmt"
+
 type Production struct {
 	Kind Kind
 	Productions []any
+}
+
+func (p Production) String() string {
+	return fmt.Sprint(p.Productions...)
 }
 
 //go:generate stringer -type Kind

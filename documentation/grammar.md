@@ -44,6 +44,9 @@ func
 
 
 expression
+    = "copy"? _expression
+
+_expression
     = literal
     = ref_path
     = expression_constructor
@@ -77,14 +80,17 @@ expression_constructor
 
 expression_field
     = ":" ref_name 
-    = ( ref_name ":" )? expression
+    = expression ( ":" ref_name )? 
 
 
 
 type
-    = "comp"? path              (* named type               *)
-    = "comp"? type_constructor  (* list/tuple/object type   *)
-    = "comp"? type_map          (* map/function type        *)
+    = "comp"? _type
+
+_type
+    = path              (* named type               *)
+    = type_constructor  (* list/tuple/object type   *)
+    = type_map          (* map/function type        *)
 
 type_map
     = [" type "/" type "]"
@@ -93,7 +99,7 @@ type_constructor
     = "[" type_field { "," type_field } "]"
 
 type_field
-    = "-"? ( ref_name ":" )? type
+    = "-"?  type ( ":" ref_name )?
 
 
 
@@ -104,5 +110,5 @@ ref_path
     = "~"? "#"? path "?"?
 
 path
-    =  name { "." name }
+    = name { "." name }
 ```

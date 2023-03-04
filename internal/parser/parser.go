@@ -27,6 +27,7 @@ type state struct {
 	offset int
 }
 
+
 func (p *parser) top() *state {
 	return &p.States[len(p.States)-1]
 }

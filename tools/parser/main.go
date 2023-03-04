@@ -11,13 +11,14 @@ import (
 
 const s =
 `
-comp a (x?: a?, :~#y, :~#z?, true)
+- comp a (x?: a?, :~#y, :~#z?, true)
 
-func x [a: num, b: num]{
-	return
+- func x [a: num, b: num]{
+	b = copy a
+	return copy b
 }
 
-comp b 1
+type n [x]
 `
 
 func main() {

@@ -17,24 +17,25 @@ func _() {
 	_ = x[OR-6]
 	_ = x[ON-7]
 	_ = x[FOR-8]
-	_ = x[RETURN-9]
-	_ = x[EQUALS-10]
-	_ = x[EXCLAIM-11]
-	_ = x[ELLIPSIS-12]
-	_ = x[DOUBLE_EQUALS-13]
-	_ = x[EXCLAIM_EQUALS-14]
-	_ = x[LESS-15]
-	_ = x[LESS_EQUALS-16]
-	_ = x[GREATER-17]
-	_ = x[GREATER_EQUALS-18]
-	_ = x[DOUBLE_AMPERSAND-19]
-	_ = x[DOUBLE_PIPE-20]
-	_ = x[SHIFT_LEFT-21]
-	_ = x[SHIFT_RIGHT-22]
-	_ = x[NUMBER-23]
-	_ = x[STRING-24]
-	_ = x[BOOLEAN-25]
-	_ = x[IDENTIFIER-26]
+	_ = x[COPY-9]
+	_ = x[RETURN-10]
+	_ = x[EQUALS-11]
+	_ = x[EXCLAIM-12]
+	_ = x[ELLIPSIS-13]
+	_ = x[DOUBLE_EQUALS-14]
+	_ = x[EXCLAIM_EQUALS-15]
+	_ = x[LESS-16]
+	_ = x[LESS_EQUALS-17]
+	_ = x[GREATER-18]
+	_ = x[GREATER_EQUALS-19]
+	_ = x[DOUBLE_AMPERSAND-20]
+	_ = x[DOUBLE_PIPE-21]
+	_ = x[SHIFT_LEFT-22]
+	_ = x[SHIFT_RIGHT-23]
+	_ = x[NUMBER-24]
+	_ = x[STRING-25]
+	_ = x[BOOLEAN-26]
+	_ = x[IDENTIFIER-27]
 	_ = x[CURLY_LEFT-123]
 	_ = x[CURLY_RIGHT-125]
 	_ = x[ROUND_LEFT-40]
@@ -57,7 +58,7 @@ func _() {
 }
 
 const (
-	_Kind_name_0 = "ERRORENDCOMPTYPEFUNCIFORONFORRETURNEQUALSEXCLAIMELLIPSISDOUBLE_EQUALSEXCLAIM_EQUALSLESSLESS_EQUALSGREATERGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIER"
+	_Kind_name_0 = "ERRORENDCOMPTYPEFUNCIFORONFORCOPYRETURNEQUALSEXCLAIMELLIPSISDOUBLE_EQUALSEXCLAIM_EQUALSLESSLESS_EQUALSGREATERGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIER"
 	_Kind_name_1 = "HASH"
 	_Kind_name_2 = "PERCENT"
 	_Kind_name_3 = "ROUND_LEFTROUND_RIGHTSTARPLUSCOMMAMINUSPERIODSLASH"
@@ -70,7 +71,7 @@ const (
 )
 
 var (
-	_Kind_index_0 = [...]uint8{0, 5, 8, 12, 16, 20, 22, 24, 26, 29, 35, 41, 48, 56, 69, 83, 87, 98, 105, 119, 135, 146, 156, 167, 173, 179, 186, 196}
+	_Kind_index_0 = [...]uint8{0, 5, 8, 12, 16, 20, 22, 24, 26, 29, 33, 39, 45, 52, 60, 73, 87, 91, 102, 109, 123, 139, 150, 160, 171, 177, 183, 190, 200}
 	_Kind_index_3 = [...]uint8{0, 10, 21, 25, 29, 34, 39, 45, 50}
 	_Kind_index_5 = [...]uint8{0, 8, 15}
 	_Kind_index_7 = [...]uint8{0, 12, 18}
@@ -79,7 +80,7 @@ var (
 
 func (i Kind) String() string {
 	switch {
-	case i <= 26:
+	case i <= 27:
 		return _Kind_name_0[_Kind_index_0[i]:_Kind_index_0[i+1]]
 	case i == 35:
 		return _Kind_name_1

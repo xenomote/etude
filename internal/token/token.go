@@ -1,14 +1,12 @@
 package token
 
-import "fmt"
-
 type Token struct {
 	Kind Kind
 	Text []byte
 }
 
 func (t Token) String() string {
-	return fmt.Sprint("{\"", string(t.Text), "\", ", t.Kind.String(), "}")
+	return string(t.Text)
 }
 
 //go:generate stringer -type Kind
@@ -26,6 +24,7 @@ const (
 	OR
 	ON
 	FOR
+	COPY
 	RETURN
 
 	EQUALS

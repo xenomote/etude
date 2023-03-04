@@ -185,6 +185,7 @@ var keywords = map[string]token.Kind{
 	"if" : token.IF,
 	"or": token.OR,
 	"for": token.FOR,
+	"copy": token.COPY,
 	"return": token.RETURN,
 
 	"true": token.BOOLEAN,

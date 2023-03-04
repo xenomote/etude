@@ -15,6 +15,10 @@ func (p *parser) Program() error {
 	}
 
 	for {
+		if p.peek().Kind == token.MINUS {
+			p.take()
+		}
+
 		found := false
 		for _, def := range defs {
 			err := def()
@@ -330,6 +334,7 @@ func (p *parser) Assign() error {
 	if p.peek().Kind != token.EQUALS {
 		return p.fail(nil)
 	}
+	p.take()
 
 	err = p.Expression()
 	if err != nil {
@@ -350,6 +355,10 @@ func (p *parser) Expression() error {
 	}
 
 	for _, expr := range exprs {
+		if p.peek().Kind == token.COPY {
+			p.take()
+		}
+
 		err := expr()
 		if err == nil {
 			return p.done()
@@ -520,31 +529,29 @@ func (p *parser) ExpressionConstructor() error {
 func (p *parser) ExpressionField() error {
 	p.start(production.EXPRESSION_FIELD)
 
+	var a, b bool
+
+	err := p.Expression()
+	if err == nil {
+		a = true
+	}
+
 	if p.peek().Kind == token.COLON {
 		p.take()
 
-		err := p.RefName()
+		err = p.RefName()
 		if err != nil {
-			return p.fail(err)
+			return p.fail(nil)
 		}
+		
+		b = true
+	}
 
+	if a || b {
 		return p.done()
 	}
 
-	err := p.RefName()
-	if err == nil {
-		if p.peek().Kind != token.COLON {
-			return p.fail(nil)
-		}
-		p.take()
-	}
-
-	err = p.Expression()
-	if err != nil {
-		return p.fail(err)
-	}
-
-	return p.done()
+	return p.fail(nil)
 }
 
 func (p *parser) Type() error {
@@ -605,17 +612,19 @@ func (p *parser) TypeField() error {
 		p.take()
 	}
 
-	err := p.RefName()
-	if err == nil {
-		if p.peek().Kind != token.COLON {
-			return p.fail(nil)
-		}
-		p.take()
-	}
-
-	err = p.Expression()
+	err := p.Type()
 	if err != nil {
 		return p.fail(err)
+	}
+
+	if p.peek().Kind != token.COLON {
+		return p.done()
+	}
+	p.take()
+
+	err = p.RefName()
+	if err != nil {
+		p.fail(nil)
 	}
 
 	return p.done()
