@@ -272,31 +272,38 @@ func (p *parser) For() error {
 		return p.done()
 	}
 
-	err = p.Assign()
-	if err == nil {
-		if p.peek().Kind != token.COMMA {
-			return p.fail(nil)
-		}
-		p.take()
-	}
+	var cond, block bool
 
-	err = p.Expression()
-	if err != nil {
-		return p.fail(err)
-	}
-
-	if p.peek().Kind == token.COMMA {
+	if p.peek().Kind == token.EQUALS {
 		p.take()
 
-		err := p.Assign()
+		err = p.ExpressionConstructor()
 		if err != nil {
 			return p.fail(nil)
 		}
 	}
 
-	err = p.Block()
-	if err != nil {
-		return p.fail(err)
+	if p.Expression() != nil {
+		cond = true
+	}
+
+	if p.peek().Kind == token.COMMA {
+		p.take()
+
+		err = p.Assign()
+		if err != nil {
+			return p.fail(nil)
+		}
+
+		cond = true
+	}
+
+	if p.Block() != nil {
+		block = true
+	}
+
+	if !cond && !block {
+		return p.fail(nil) // must have a condition/assignment or a block
 	}
 
 	return p.done()
@@ -331,10 +338,19 @@ func (p *parser) Assign() error {
 		return p.fail(err)
 	}
 
-	if p.peek().Kind != token.EQUALS {
+	t := p.peek().Kind
+	p.take()
+
+	switch t {
+	case token.EQUALS: // pluseq, minuseq, etc...
+		//carry on
+
+	case token.DOUBLE_PLUS, token.DOUBLE_MINUS:
+		return p.done()
+
+	default:
 		return p.fail(nil)
 	}
-	p.take()
 
 	err = p.Expression()
 	if err != nil {
@@ -348,7 +364,7 @@ func (p *parser) Expression() error {
 	p.start(production.EXPRESSION)
 
 	exprs := []func() error{
-		p.RefPath, // must be before literal 
+		p.RefPath, // must be before literal
 		p.Literal,
 		p.ExpressionConstructor,
 		p.ExpressionOperator,
@@ -536,14 +552,14 @@ func (p *parser) ExpressionField() error {
 		a = true
 	}
 
-	if p.peek().Kind == token.COLON {
+	if p.peek().Kind == token.EQUALS {
 		p.take()
 
 		err = p.RefName()
 		if err != nil {
 			return p.fail(nil)
 		}
-		
+
 		b = true
 	}
 

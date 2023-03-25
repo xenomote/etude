@@ -78,20 +78,40 @@ func (l *lexer) Next() (token.Token, error) {
 	}
 
 	switch c {
-	case '{', '}', '[', ']', '(', ')', '?', '@','~', '#', '.', ',', '+', '-', '*', '/', '^', '%', ':':
+	case '{', '}', '[', ']', '(', ')', '?', '@', '~', '#', ',', '*', '/', '^', '%', ':':
 		return l.emit(token.Kind(c))
+	
+	case '.':
+		for l.read() == '.' {}
+		
+		switch string(l.text()) {
+		case ".":
+			return l.emit(token.PERIOD)
+
+		case "...":
+			return l.emit(token.ELLIPSIS)
+
+		default:
+			return l.fail(ErrNotFound)
+		}
+
+	case '+':
+		return l.ifPeek('+', token.PLUS, token.DOUBLE_PLUS)
+
+	case '-':
+		return l.ifPeek('-', token.MINUS, token.DOUBLE_MINUS)
 
 	case '=':
-		return l.ifEq(token.EQUALS, token.DOUBLE_EQUALS)
+		return l.ifPeek('=', token.EQUALS, token.DOUBLE_EQUALS)
 
 	case '!':
-		return l.ifEq(token.EXCLAIM, token.EXCLAIM_EQUALS)
+		return l.ifPeek('=', token.EXCLAIM, token.EXCLAIM_EQUALS)
 
 	case '<':
-		return l.ifEq(token.LESS, token.LESS_EQUALS)
+		return l.ifPeek('=', token.LESS, token.LESS_EQUALS)
 
 	case '>':
-		return l.ifEq(token.GREATER, token.GREATER_EQUALS)
+		return l.ifPeek('=', token.GREATER, token.GREATER_EQUALS)
 
 	case '"':
 		return l.string()
@@ -125,10 +145,8 @@ func (l *lexer) fail(err error) (token.Token, error) {
 	return t, err
 }
 
-func (l *lexer) ifEq(a, b token.Kind) (token.Token, error) {
-	c := l.peek()
-
-	if c != '=' {
+func (l *lexer) ifPeek(c byte, a, b token.Kind) (token.Token, error) {
+	if l.peek() != c {
 		return l.emit(a)
 	}
 
@@ -182,13 +200,13 @@ var keywords = map[string]token.Kind{
 	"type": token.TYPE,
 	"func": token.FUNC,
 
-	"if" : token.IF,
-	"or": token.OR,
-	"for": token.FOR,
-	"copy": token.COPY,
+	"if":     token.IF,
+	"or":     token.OR,
+	"for":    token.FOR,
+	"copy":   token.COPY,
 	"return": token.RETURN,
 
-	"true": token.BOOLEAN,
+	"true":  token.BOOLEAN,
 	"false": token.BOOLEAN,
 }
 

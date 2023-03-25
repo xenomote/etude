@@ -24,10 +24,12 @@ on
     = "on" expression "{" { expression block }+ ( "or" block )? "}"
 
 for
-    = "for" ( ( assign "," )? expression ( "," assign )? )? block?
+    = "for" ( "=" expression_constructor )?  expression? ( "," assign )?  block?
 
 assign
     = expression "=" expression
+    = expression "++"
+    = expression "--"
 
 return
     = "return" expression?
@@ -79,8 +81,8 @@ expression_constructor
     = "(" expression_field { "," expression_field } ")"   (* list/tuple/object/map literal, brackets *)
 
 expression_field
-    = ":" ref_name 
-    = expression ( ":" ref_name )? 
+    = "=" ref_name 
+    = expression ( "=" ref_name )? 
 
 
 

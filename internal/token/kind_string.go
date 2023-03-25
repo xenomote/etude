@@ -19,23 +19,25 @@ func _() {
 	_ = x[FOR-8]
 	_ = x[COPY-9]
 	_ = x[RETURN-10]
-	_ = x[EQUALS-11]
-	_ = x[EXCLAIM-12]
-	_ = x[ELLIPSIS-13]
+	_ = x[ELLIPSIS-11]
+	_ = x[DOUBLE_PLUS-12]
+	_ = x[DOUBLE_MINUS-13]
 	_ = x[DOUBLE_EQUALS-14]
 	_ = x[EXCLAIM_EQUALS-15]
-	_ = x[LESS-16]
-	_ = x[LESS_EQUALS-17]
-	_ = x[GREATER-18]
-	_ = x[GREATER_EQUALS-19]
-	_ = x[DOUBLE_AMPERSAND-20]
-	_ = x[DOUBLE_PIPE-21]
-	_ = x[SHIFT_LEFT-22]
-	_ = x[SHIFT_RIGHT-23]
-	_ = x[NUMBER-24]
-	_ = x[STRING-25]
-	_ = x[BOOLEAN-26]
-	_ = x[IDENTIFIER-27]
+	_ = x[LESS_EQUALS-16]
+	_ = x[GREATER_EQUALS-17]
+	_ = x[DOUBLE_AMPERSAND-18]
+	_ = x[DOUBLE_PIPE-19]
+	_ = x[SHIFT_LEFT-20]
+	_ = x[SHIFT_RIGHT-21]
+	_ = x[NUMBER-22]
+	_ = x[STRING-23]
+	_ = x[BOOLEAN-24]
+	_ = x[IDENTIFIER-25]
+	_ = x[EXCLAIM-33]
+	_ = x[EQUALS-61]
+	_ = x[LESS-60]
+	_ = x[GREATER-62]
 	_ = x[CURLY_LEFT-123]
 	_ = x[CURLY_RIGHT-125]
 	_ = x[ROUND_LEFT-40]
@@ -57,54 +59,63 @@ func _() {
 	_ = x[PERIOD-46]
 }
 
-const (
-	_Kind_name_0 = "ERRORENDCOMPTYPEFUNCIFORONFORCOPYRETURNEQUALSEXCLAIMELLIPSISDOUBLE_EQUALSEXCLAIM_EQUALSLESSLESS_EQUALSGREATERGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIER"
-	_Kind_name_1 = "HASH"
-	_Kind_name_2 = "PERCENT"
-	_Kind_name_3 = "ROUND_LEFTROUND_RIGHTSTARPLUSCOMMAMINUSPERIODSLASH"
-	_Kind_name_4 = "COLON"
-	_Kind_name_5 = "QUESTIONADDRESS"
-	_Kind_name_6 = "SQUARE_LEFT"
-	_Kind_name_7 = "SQUARE_RIGHTCARRET"
-	_Kind_name_8 = "CURLY_LEFT"
-	_Kind_name_9 = "CURLY_RIGHTTILDE"
-)
+const _Kind_name = "ERRORENDCOMPTYPEFUNCIFORONFORCOPYRETURNELLIPSISDOUBLE_PLUSDOUBLE_MINUSDOUBLE_EQUALSEXCLAIM_EQUALSLESS_EQUALSGREATER_EQUALSDOUBLE_AMPERSANDDOUBLE_PIPESHIFT_LEFTSHIFT_RIGHTNUMBERSTRINGBOOLEANIDENTIFIEREXCLAIMHASHPERCENTROUND_LEFTROUND_RIGHTSTARPLUSCOMMAMINUSPERIODSLASHCOLONLESSEQUALSGREATERQUESTIONADDRESSSQUARE_LEFTSQUARE_RIGHTCARRETCURLY_LEFTCURLY_RIGHTTILDE"
 
-var (
-	_Kind_index_0 = [...]uint8{0, 5, 8, 12, 16, 20, 22, 24, 26, 29, 33, 39, 45, 52, 60, 73, 87, 91, 102, 109, 123, 139, 150, 160, 171, 177, 183, 190, 200}
-	_Kind_index_3 = [...]uint8{0, 10, 21, 25, 29, 34, 39, 45, 50}
-	_Kind_index_5 = [...]uint8{0, 8, 15}
-	_Kind_index_7 = [...]uint8{0, 12, 18}
-	_Kind_index_9 = [...]uint8{0, 11, 16}
-)
+var _Kind_map = map[Kind]string{
+	0:   _Kind_name[0:5],
+	1:   _Kind_name[5:8],
+	2:   _Kind_name[8:12],
+	3:   _Kind_name[12:16],
+	4:   _Kind_name[16:20],
+	5:   _Kind_name[20:22],
+	6:   _Kind_name[22:24],
+	7:   _Kind_name[24:26],
+	8:   _Kind_name[26:29],
+	9:   _Kind_name[29:33],
+	10:  _Kind_name[33:39],
+	11:  _Kind_name[39:47],
+	12:  _Kind_name[47:58],
+	13:  _Kind_name[58:70],
+	14:  _Kind_name[70:83],
+	15:  _Kind_name[83:97],
+	16:  _Kind_name[97:108],
+	17:  _Kind_name[108:122],
+	18:  _Kind_name[122:138],
+	19:  _Kind_name[138:149],
+	20:  _Kind_name[149:159],
+	21:  _Kind_name[159:170],
+	22:  _Kind_name[170:176],
+	23:  _Kind_name[176:182],
+	24:  _Kind_name[182:189],
+	25:  _Kind_name[189:199],
+	33:  _Kind_name[199:206],
+	35:  _Kind_name[206:210],
+	37:  _Kind_name[210:217],
+	40:  _Kind_name[217:227],
+	41:  _Kind_name[227:238],
+	42:  _Kind_name[238:242],
+	43:  _Kind_name[242:246],
+	44:  _Kind_name[246:251],
+	45:  _Kind_name[251:256],
+	46:  _Kind_name[256:262],
+	47:  _Kind_name[262:267],
+	58:  _Kind_name[267:272],
+	60:  _Kind_name[272:276],
+	61:  _Kind_name[276:282],
+	62:  _Kind_name[282:289],
+	63:  _Kind_name[289:297],
+	64:  _Kind_name[297:304],
+	91:  _Kind_name[304:315],
+	93:  _Kind_name[315:327],
+	94:  _Kind_name[327:333],
+	123: _Kind_name[333:343],
+	125: _Kind_name[343:354],
+	126: _Kind_name[354:359],
+}
 
 func (i Kind) String() string {
-	switch {
-	case i <= 27:
-		return _Kind_name_0[_Kind_index_0[i]:_Kind_index_0[i+1]]
-	case i == 35:
-		return _Kind_name_1
-	case i == 37:
-		return _Kind_name_2
-	case 40 <= i && i <= 47:
-		i -= 40
-		return _Kind_name_3[_Kind_index_3[i]:_Kind_index_3[i+1]]
-	case i == 58:
-		return _Kind_name_4
-	case 63 <= i && i <= 64:
-		i -= 63
-		return _Kind_name_5[_Kind_index_5[i]:_Kind_index_5[i+1]]
-	case i == 91:
-		return _Kind_name_6
-	case 93 <= i && i <= 94:
-		i -= 93
-		return _Kind_name_7[_Kind_index_7[i]:_Kind_index_7[i+1]]
-	case i == 123:
-		return _Kind_name_8
-	case 125 <= i && i <= 126:
-		i -= 125
-		return _Kind_name_9[_Kind_index_9[i]:_Kind_index_9[i+1]]
-	default:
-		return "Kind(" + strconv.FormatInt(int64(i), 10) + ")"
+	if str, ok := _Kind_map[i]; ok {
+		return str
 	}
+	return "Kind(" + strconv.FormatInt(int64(i), 10) + ")"
 }

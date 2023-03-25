@@ -11,11 +11,17 @@ import (
 
 const s =
 `
-- comp a (x?: a?, :~#y, :~#z?, true)
+- comp a (x? = a?, = ~#y, = ~#z?, true)
 
-- func x [a: num, b: num]{
+- func x [a: num, b: num] {
 	b = copy a
 	return copy b
+
+	for {
+		for = (a = 3) a < e, a++ {
+			return x
+		}
+	}
 }
 
 type n [x]
